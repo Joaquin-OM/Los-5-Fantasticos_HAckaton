@@ -300,35 +300,72 @@
                     </div>
 
                     <div id="admin-dashboard" class="role-view">
-                        <div class="grid-layout">
-                            <div class="stat-card simple-panel">
-                                <i class="ph-fill ph-buildings"></i>
-                                <div>
-                                    <h4>Hoteles Activos</h4>
-                                    <h2>12</h2>
+                        <!-- Overview Global -->
+                        <div id="admin-overview" class="sub-view active">
+                            <div class="grid-layout mb-4">
+                                <div class="stat-card simple-panel">
+                                    <i class="ph-fill ph-buildings"></i>
+                                    <div>
+                                        <h4>Hoteles Activos</h4>
+                                        <h2 id="admin-stat-hotels">0</h2>
+                                    </div>
+                                </div>
+                                <div class="stat-card simple-panel">
+                                    <i class="ph-fill ph-truck"></i>
+                                    <div>
+                                        <h4>Envíos en Ruta</h4>
+                                        <h2 id="admin-stat-transit">0</h2>
+                                    </div>
+                                </div>
+                                <div class="stat-card simple-panel">
+                                    <i class="ph-fill ph-ticket"></i>
+                                    <div>
+                                        <h4>Incidencias Activas</h4>
+                                        <h2 id="admin-stat-tickets" class="text-danger">0</h2>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="stat-card simple-panel">
-                                <i class="ph-fill ph-truck"></i>
-                                <div>
-                                    <h4>Envíos en Ruta</h4>
-                                    <h2 id="admin-stat-transit">2</h2>
-                                </div>
+                            
+                            <div class="card simple-panel" style="padding:0; height:400px; overflow:hidden;">
+                                <div id="admin-map" style="width: 100%; height: 100%; z-index: 1;"></div>
                             </div>
-                            <div class="stat-card simple-panel">
-                                <i class="ph-fill ph-ticket"></i>
-                                <div>
-                                    <h4>Tickets de Hoteles</h4>
-                                    <h2 id="admin-stat-tickets" class="text-danger">1</h2>
-                                </div>
-                            </div>
+                        </div>
 
-                            <div class="card simple-panel col-span-3 mt-4">
+                        <!-- Hoteles (base de datos) -->
+                        <div id="admin-hotels" class="sub-view">
+                            <div class="card simple-panel">
                                 <div class="flex-between mb-4">
-                                    <h3><i class="ph-fill ph-list-dashes text-muted"></i> Gestión de Operaciones</h3>
+                                    <h3><i class="ph-fill ph-buildings text-primary"></i> Base de Clientes (Hoteles)</h3>
                                     <div class="search-box">
                                         <i class="ph ph-magnifying-glass"></i>
-                                        <input type="text" placeholder="Buscar ID o Hotel...">
+                                        <input type="text" id="search-hotels" placeholder="Buscar hotel...">
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>NOMBRE HOTEL</th>
+                                                <th>TIEMPO MEDIO (min)</th>
+                                                <th>JAULAS EN USO</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-hotels-body">
+                                            <tr><td colspan="3" class="text-center py-4 text-muted"><i class="ph ph-spinner animate-spin"></i> Cargando datos...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Flota y Envíos -->
+                        <div id="admin-shipments" class="sub-view">
+                            <div class="card simple-panel">
+                                <div class="flex-between mb-4">
+                                    <h3><i class="ph-fill ph-truck text-primary"></i> Gestión de Operaciones</h3>
+                                    <div class="search-box">
+                                        <i class="ph ph-magnifying-glass"></i>
+                                        <input type="text" id="search-shipments" placeholder="Buscar ID o Chofer...">
                                     </div>
                                 </div>
                                 <div class="table-responsive">
@@ -337,14 +374,37 @@
                                             <tr>
                                                 <th>ID ENVÍO</th>
                                                 <th>CLIENTE (HOTEL)</th>
-                                                <th>CHOFER (RUTA)</th>
+                                                <th>CHOFER</th>
                                                 <th>ESTADO</th>
                                                 <th>HORARIO</th>
                                                 <th>TIPO</th>
                                             </tr>
                                         </thead>
                                         <tbody id="admin-shipments-body">
-                                            </tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tickets e Incidencias -->
+                        <div id="admin-tickets" class="sub-view">
+                            <div class="card simple-panel">
+                                <h3><i class="ph-fill ph-ticket text-danger"></i> Centro de Resoluciones</h3>
+                                <div class="table-responsive mt-4">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>TICKET ID</th>
+                                                <th>ORIGEN</th>
+                                                <th>REFERENCIA</th>
+                                                <th>DESCRIPCIÓN</th>
+                                                <th>ESTADO</th>
+                                                <th>ACCIÓN</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-tickets-body">
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>
