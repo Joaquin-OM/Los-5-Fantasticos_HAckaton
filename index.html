@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
 
 <body>
@@ -294,6 +295,36 @@
                                 <h4 class="mb-2"><i class="ph-fill ph-van text-muted"></i> Información del Vehículo Asignado</h4>
                                 <div class="bg-light mt-2 flex-between" style="padding: 1rem; border-radius: 4px;" id="driver-vehicle-info">
                                     <div class="text-center w-100 py-2"><i class="ph ph-spinner animate-spin"></i> Obteniendo datos de camiones...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Escanear QR -->
+                        <div id="driver-scanner" class="sub-view">
+                            <div class="card simple-panel" style="max-width: 500px; margin: 0 auto; text-align: center;">
+                                <div class="mb-4">
+                                    <h3><i class="ph-fill ph-qr-code text-primary"></i> Escanear Bolsa</h3>
+                                    <p class="text-muted text-sm">Centra el código QR del ticket o bolsa en el recuadro de abajo para registrarlo.</p>
+                                </div>
+
+                                <div id="scanner-panel">
+                                    <div id="reader" style="width: 100%; border: 1px solid var(--border-color); border-radius: 4px; overflow: hidden; background: var(--bg-main);"></div>
+                                    <style>#reader a { display: none !important; }</style>
+                                </div>
+
+                                <div id="result-panel" style="display: none; background-color: #dcfce7; border: 1px solid #bbf7d0; text-align: center; padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+                                    <h3 style="color: #16a34a; justify-content: center; margin-bottom: 0.5rem;">
+                                        <i class="ph-fill ph-check-circle"></i> ¡Código Detectado!
+                                    </h3>
+                                    <p class="text-muted text-sm" style="margin: 0;">ID de la orden:</p>
+                                    <div class="qr-data" id="qr-result-text" style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin: 1rem 0; word-break: break-all; background: rgba(255,255,255,0.7); padding: 0.75rem; border-radius: 4px;">---</div>
+                                    
+                                    <button class="btn btn-primary full-width mb-2" onclick="confirmarRecogidaQR()">
+                                        <i class="ph-fill ph-truck"></i> Confirmar Recogida
+                                    </button>
+                                    <button class="btn btn-secondary full-width" onclick="reiniciarEscanerQR()">
+                                        <i class="ph-fill ph-arrows-clockwise"></i> Volver a escanear
+                                    </button>
                                 </div>
                             </div>
                         </div>
