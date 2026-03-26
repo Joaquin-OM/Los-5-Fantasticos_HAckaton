@@ -12,10 +12,8 @@
 
 <body>
     <div id="app-container">
-        <!-- Notificaciones -->
         <div id="toast-container"></div>
 
-        <!-- LOGIN SECTION -->
         <section id="login-section" class="view active-view align-center">
             <div class="login-card simple-panel fade-in-up">
                 <div class="logo-container">
@@ -49,14 +47,12 @@
             </div>
         </section>
 
-        <!-- DASHBOARD CONTAINER -->
         <section id="dashboard-container" class="view">
             <nav class="sidebar simple-panel">
                 <div class="sidebar-header">
                     <i class="ph-fill ph-washing-machine text-primary"></i>
                     <h2>Polarier</h2>
                 </div>
-                <!-- Menú dinámico inyectado por JS -->
                 <ul class="nav-links" id="sidebar-links"></ul>
                 <div class="sidebar-footer">
                     <button id="logout-btn" class="btn btn-ghost">
@@ -77,27 +73,13 @@
                 </header>
 
                 <div class="content-area" id="main-content-area">
-                    <!-- CONTENIDO CLIENTE -->
                     <div id="client-dashboard" class="role-view">
-                        <div class="grid-layout">
-                            <!-- Estado de Envío Activo -->
-                            <div class="card simple-panel col-span-2">
-                                <h3><i class="ph-fill ph-truck text-muted"></i> Envío Reciente / En Curso</h3>
-                                <div id="client-active-shipment">
-                                    <div class="shipment-status" id="client-progress-bar">
-                                        <!-- JS inyecta los steps -->
-                                    </div>
-                                    <div class="shipment-details mt-4 bg-light" id="client-shipment-details">
-                                        <!-- JS inyecta info -->
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Crear Envío -->
-                            <div class="card simple-panel flex-col-between">
+                        <!-- Hacer un pedido -->
+                        <div id="client-make-order" class="sub-view active">
+                            <div class="card simple-panel" style="max-width: 600px; margin: 0 auto;">
                                 <div>
-                                    <h3><i class="ph-fill ph-calendar-plus text-muted"></i> Solicitar Recolección</h3>
-                                    <p class="text-muted text-sm mb-4">Agenda un horario para recolectar ropa sucia.</p>
+                                    <h3><i class="ph-fill ph-calendar-plus text-primary"></i> Hacer un pedido</h3>
+                                    <p class="text-muted text-sm mb-4">Agenda una recolección de ropa sucia o solicita ropa limpia.</p>
                                 </div>
                                 <form id="new-shipment-form">
                                     <div class="form-group">
@@ -110,19 +92,88 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label>Carros a entregar</label>
+                                        <label>Carros a entregar/recoger</label>
                                         <input type="number" id="new-shipment-carts" min="1" max="50" required
                                             placeholder="Ej. 5">
                                     </div>
-                                    <button type="submit" class="btn btn-primary full-width">Programar
-                                        Recolección</button>
+                                    <div class="form-group">
+                                        <label>Tipo de Pedido</label>
+                                        <select id="new-shipment-type" required>
+                                            <option value="Recogida Ropa Sucia">Solo Recogida Ropa Sucia</option>
+                                            <option value="Limpios + Recogida">Ropa Limpia + Recogida</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary full-width mt-4">Confirmar Pedido</button>
                                 </form>
                             </div>
+                        </div>
 
-                            <!-- Tickets -->
-                            <div class="card simple-panel col-span-3">
+                        <!-- Monitorear pedido -->
+                        <div id="client-monitor-order" class="sub-view">
+                            <div class="card simple-panel">
+                                <h3><i class="ph-fill ph-truck text-primary"></i> Monitorear pedido activo</h3>
+                                <div id="client-active-shipment">
+                                    <div class="shipment-status" id="client-progress-bar">
+                                        </div>
+                                    <div class="shipment-details mt-4 bg-light" id="client-shipment-details">
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Incidencias -->
+                        <div id="client-incidents" class="sub-view">
+                            <div class="card simple-panel">
                                 <div class="flex-between mb-4">
-                                    <h3><i class="ph-fill ph-ticket text-muted"></i> Soporte / Tickets</h3>
+                                    <h3><i class="ph-fill ph-warning text-danger"></i> Reporte de Incidencias</h3>
+                                    <button class="btn btn-secondary btn-sm" id="btn-new-incident" onclick="document.getElementById('modal-incident').classList.add('show')">
+                                        Reportar Incidencia
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID INCIDENCIA</th>
+                                                <th>REFERENCIA</th>
+                                                <th>DESCRIPCIÓN</th>
+                                                <th>FECHA</th>
+                                                <th>ESTADO</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="client-incidents-body">
+                                            </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Historial de pedidos -->
+                        <div id="client-order-history" class="sub-view">
+                            <div class="card simple-panel">
+                                <h3><i class="ph-fill ph-clock-counter-clockwise text-primary"></i> Historial de pedidos</h3>
+                                <div class="table-responsive mt-4">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID ENVÍO</th>
+                                                <th>TIPO</th>
+                                                <th>HORARIO</th>
+                                                <th>ESTADO</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="client-history-body">
+                                            </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Soporte -->
+                        <div id="client-support" class="sub-view">
+                            <div class="card simple-panel">
+                                <div class="flex-between mb-4">
+                                    <h3><i class="ph-fill ph-lifebuoy text-primary"></i> Soporte Técnico</h3>
                                     <button class="btn btn-secondary btn-sm" id="btn-new-ticket">
                                         Nuevo Ticket
                                     </button>
@@ -139,33 +190,28 @@
                                             </tr>
                                         </thead>
                                         <tbody id="client-tickets-body">
-                                            <!-- Renderizado por JS -->
-                                        </tbody>
+                                            </tbody>
                                     </table>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- CONTENIDO CHOFER -->
                     <div id="driver-dashboard" class="role-view">
                         <div class="grid-layout">
                             <div class="card simple-panel col-span-2">
                                 <h3><i class="ph-fill ph-map-trifold text-muted"></i> Ruta de Hoy</h3>
                                 <div class="route-list mt-4" id="driver-routes">
-                                    <!-- Generado por JS -->
-                                </div>
+                                    </div>
                             </div>
                             <div class="card simple-panel">
                                 <h3><i class="ph-fill ph-info text-muted"></i> Resumen de tu jornada</h3>
                                 <div class="stats-grid mt-4" id="driver-stats">
-                                    <!-- Generado por JS -->
-                                </div>
+                                    </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- CONTENIDO ADMIN -->
                     <div id="admin-dashboard" class="role-view">
                         <div class="grid-layout">
                             <div class="stat-card simple-panel">
@@ -211,8 +257,7 @@
                                             </tr>
                                         </thead>
                                         <tbody id="admin-shipments-body">
-                                            <!-- Generado por JS -->
-                                        </tbody>
+                                            </tbody>
                                     </table>
                                 </div>
                             </div>
@@ -222,7 +267,27 @@
             </main>
         </section>
 
-        <!-- MODALES -->
+        <div id="modal-incident" class="modal">
+            <div class="modal-content simple-panel fade-in-up">
+                <span class="close-modal"><i class="ph ph-x"></i></span>
+                <h3>Reportar Incidencia</h3>
+                <p class="text-muted text-sm mb-4">Reporta cualquier problema con un envío o servicio.</p>
+                <form id="form-create-incident">
+                    <div class="form-group">
+                        <label>Envío de Referencia</label>
+                        <select id="incident-ref-envio" required>
+                            </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Detalle la incidencia</label>
+                        <textarea id="incident-desc" rows="4" required
+                            placeholder="Ej. Faltaron toallas en la entrega de hoy..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger full-width">Enviar Reporte</button>
+                </form>
+            </div>
+        </div>
+
         <div id="modal-ticket" class="modal">
             <div class="modal-content simple-panel fade-in-up">
                 <span class="close-modal"><i class="ph ph-x"></i></span>
@@ -232,8 +297,7 @@
                     <div class="form-group">
                         <label>Envío de Referencia</label>
                         <select id="ticket-ref-envio" required>
-                            <!-- Inyectado por js -->
-                        </select>
+                            </select>
                     </div>
                     <div class="form-group">
                         <label>Detalle la modificación o incidencia</label>
@@ -254,11 +318,20 @@
                 </div>
                 <form id="form-complete-shipment">
                     <div class="form-group">
-                        <label>Carros de ropa sucia recogidos del hotel</label>
+                        <label>Carros de ropa sucia recogidos</label>
                         <input type="number" id="dirty-carts" min="0" required placeholder="0">
-                        <p class="text-xs text-muted mt-1">Si solo fue entrega de limpios, introduzca 0.</p>
                     </div>
-                    <button type="submit" class="btn btn-success full-width">
+                    
+                    <div class="form-group">
+                        <div class="flex-between" style="margin-bottom: 0.5rem;">
+                            <label style="margin: 0;">Firma del Cliente</label>
+                            <button type="button" id="clear-signature" class="btn btn-sm btn-ghost" style="padding: 0.2rem 0.5rem;">Limpiar</button>
+                        </div>
+                        <canvas id="signature-pad" width="352" height="150" style="border: 1px solid var(--border-color); border-radius: 4px; background: #fff; width: 100%; touch-action: none; cursor: crosshair;"></canvas>
+                        <p class="text-xs text-muted mt-1">El cliente debe firmar aquí para conformar el servicio.</p>
+                    </div>
+
+                    <button type="submit" class="btn btn-success full-width mt-4">
                         Marcar como Entregado
                     </button>
                 </form>
