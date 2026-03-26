@@ -25,6 +25,7 @@ const saveState = () => {
 
 // Mapeos UI
 const statusMap = {
+    'pendiente': { label: 'Sin Asignar', class: 'ghost', icon: 'ph-clock' },
     'preparado': { label: 'Preparado', class: 'pending', icon: 'ph-package' },
     'en_camino': { label: 'En Ruta', class: 'in-progress', icon: 'ph-truck' },
     'entregado': { label: 'Completado', class: 'completed', icon: 'ph-check-circle' }
@@ -317,7 +318,7 @@ document.getElementById('new-shipment-form')?.addEventListener('submit', (e) => 
     const type = document.getElementById('new-shipment-type').value;
     const newId = '#ENV-' + Math.floor(Math.random() * 900 + 500);
     appState.shipments.unshift({
-        id: newId, hotel: currentUser.hotel, driver: 'Asignando...', status: 'preparado', time: time, dirtyCarts: null, type: type, signature: null
+        id: newId, hotel: currentUser.hotel, driver: 'Sin Asignar', status: 'pendiente', time: time, dirtyCarts: null, type: type, signature: null
     });
     saveState();
     showToast(`Pedido confirmado (${newId})`);
@@ -666,7 +667,7 @@ async function renderAdminView() {
     const tbodyShipments = document.getElementById('admin-shipments-body');
     if(tbodyShipments) {
         if (appState.shipments.length === 0) {
-            tbodyShipments.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No hay operaciones.</td></tr>`;
+            tbodyShipments.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No hay operaciones.</td></tr>`;
         } else {
             tbodyShipments.innerHTML = appState.shipments.map(s => `
                 <tr>
@@ -679,6 +680,9 @@ async function renderAdminView() {
                         ${s.type} 
                         ${s.dirtyCarts !== null ? `<br><span class="text-xs text-success">(Retornó ${s.dirtyCarts} carros)</span>` : ''}
                         ${s.signature ? `<br><span class="text-xs text-primary fw-500"><i class="ph-fill ph-pen-nib"></i> Firmado</span>` : ''}
+                    </td>
+                    <td>
+                        ${s.status === 'pendiente' ? `<button class="btn btn-sm btn-primary" onclick="openAssignDriver('${s.id}')">Asignar</button>` : `<span class="text-muted text-sm">--</span>`}
                     </td>
                 </tr>
             `).join('');
@@ -716,6 +720,27 @@ window.closeTicket = function(id) {
         renderAdminView();
     }
 }
+
+window.openAssignDriver = function(id) {
+    document.getElementById('assign-shipment-id').value = id;
+    document.getElementById('assign-shipment-display').value = id;
+    document.getElementById('modal-assign-driver').classList.add('show');
+}
+
+document.getElementById('form-assign-driver')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const id = document.getElementById('assign-shipment-id').value;
+    const driver = document.getElementById('assign-driver-select').value;
+    const shipment = appState.shipments.find(s => s.id === id);
+    if(shipment) {
+        shipment.driver = driver;
+        shipment.status = 'preparado';
+        saveState();
+        showToast(`Chofer ${driver} asignado a ${id}`);
+        renderAdminView();
+    }
+    document.getElementById('modal-assign-driver').classList.remove('show');
+});
 
 
 // GLOBAL UTILS

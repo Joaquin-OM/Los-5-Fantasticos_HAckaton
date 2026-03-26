@@ -378,6 +378,7 @@
                                                 <th>ESTADO</th>
                                                 <th>HORARIO</th>
                                                 <th>TIPO</th>
+                                                <th>ACCIÓN</th>
                                             </tr>
                                         </thead>
                                         <tbody id="admin-shipments-body">
@@ -413,6 +414,30 @@
                 </div>
             </main>
         </section>
+
+        <div id="modal-assign-driver" class="modal">
+            <div class="modal-content simple-panel fade-in-up">
+                <span class="close-modal"><i class="ph ph-x"></i></span>
+                <h3>Asignar Conductor</h3>
+                <p class="text-muted text-sm mb-4">Selecciona un chofer de la flota para este pedido.</p>
+                <form id="form-assign-driver">
+                    <input type="hidden" id="assign-shipment-id">
+                    <div class="form-group">
+                        <label>Pedido Referencia</label>
+                        <input type="text" id="assign-shipment-display" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Seleccionar Chofer</label>
+                        <select id="assign-driver-select" required>
+                            <option value="Carlos R.">Carlos R. (Base Palma / Norte)</option>
+                            <option value="Ana G.">Ana G. (Base Sur / Este)</option>
+                            <option value="Luis M.">Luis M. (Central / Ocasional)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width mt-4">Confirmar Asignación</button>
+                </form>
+            </div>
+        </div>
 
         <div id="modal-incident" class="modal">
             <div class="modal-content simple-panel fade-in-up">
