@@ -25,6 +25,7 @@ const saveState = () => {
 
 // Mapeos UI
 const statusMap = {
+    'pendiente': { label: 'Sin Asignar', class: 'ghost', icon: 'ph-clock' },
     'preparado': { label: 'Preparado', class: 'pending', icon: 'ph-package' },
     'en_camino': { label: 'En Ruta', class: 'in-progress', icon: 'ph-truck' },
     'entregado': { label: 'Completado', class: 'completed', icon: 'ph-check-circle' }
@@ -112,13 +113,15 @@ function initDashboardView() {
     }
     else {
         sidebar.innerHTML = `
-            <li><a href="#" class="active"><i class="ph-fill ph-chart-line-up"></i> <span>Overview Global</span></a></li>
-            <li><a href="#"><i class="ph ph-buildings"></i> <span>Hoteles</span></a></li>
-            <li><a href="#"><i class="ph ph-truck"></i> <span>Flota y Envíos</span></a></li>
+            <li><a href="#" class="nav-item active" onclick="switchAdminView('admin-overview', this)"><i class="ph-fill ph-chart-line-up"></i> <span>Overview Global</span></a></li>
+            <li><a href="#" class="nav-item" onclick="switchAdminView('admin-hotels', this)"><i class="ph-fill ph-buildings"></i> <span>Base Hoteles</span></a></li>
+            <li><a href="#" class="nav-item" onclick="switchAdminView('admin-shipments', this)"><i class="ph-fill ph-truck"></i> <span>Operaciones</span></a></li>
+            <li><a href="#" class="nav-item" onclick="switchAdminView('admin-tickets', this)"><i class="ph-fill ph-ticket"></i> <span>Tickets</span></a></li>
         `;
-        document.getElementById('current-page-title').textContent = `Administración Polarier`;
+        document.getElementById('current-page-title').textContent = `Overview Global`;
         switchDashboardRole('admin-dashboard');
         renderAdminView();
+        switchAdminView('admin-overview', sidebar.querySelector('a'));
     }
 }
 
@@ -168,6 +171,30 @@ window.switchDriverView = function(viewId, element) {
             'driver-profile': 'Mi Vehículo / Perfil'
         };
         document.getElementById('current-page-title').textContent = titleMap[viewId] || `Portal Logístico`;
+    }
+}
+
+window.switchAdminView = function(viewId, element) {
+    document.querySelectorAll('#admin-dashboard .sub-view').forEach(v => v.classList.remove('active'));
+    let target = document.getElementById(viewId);
+    if(target) target.classList.add('active');
+    
+    // Leaflet map fix
+    if (viewId === 'admin-overview' && typeof adminMap !== 'undefined' && adminMap) {
+        setTimeout(() => adminMap.invalidateSize(), 300);
+    }
+    
+    if (element) {
+        document.querySelectorAll('#sidebar-links a').forEach(a => a.classList.remove('active'));
+        element.classList.add('active');
+        
+        const titleMap = {
+            'admin-overview': 'Overview Global',
+            'admin-hotels': 'Directorio de Clientes',
+            'admin-shipments': 'Gestión de Operaciones',
+            'admin-tickets': 'Centro de Resoluciones'
+        };
+        document.getElementById('current-page-title').textContent = titleMap[viewId] || `Administración`;
     }
 }
 
@@ -291,7 +318,7 @@ document.getElementById('new-shipment-form')?.addEventListener('submit', (e) => 
     const type = document.getElementById('new-shipment-type').value;
     const newId = '#ENV-' + Math.floor(Math.random() * 900 + 500);
     appState.shipments.unshift({
-        id: newId, hotel: currentUser.hotel, driver: 'Asignando...', status: 'preparado', time: time, dirtyCarts: null, type: type, signature: null
+        id: newId, hotel: currentUser.hotel, driver: 'Sin Asignar', status: 'pendiente', time: time, dirtyCarts: null, type: type, signature: null
     });
     saveState();
     showToast(`Pedido confirmado (${newId})`);
@@ -343,9 +370,22 @@ document.getElementById('form-create-incident')?.addEventListener('submit', (e) 
 
 // MAPA LEAFLET PARA CHOFER
 let driverMap = null;
+let camionesData = [];
 
 // DRIVER ROLE LOGIC
-function renderDriverView() {
+async function renderDriverView() {
+    // Cargar camiones
+    if (camionesData.length === 0) {
+        try {
+            const res = await fetch('camiones.json');
+            if(res.ok) {
+                const data = await res.json();
+                camionesData = data.vehiculos || [];
+            }
+        } catch(e) {
+            console.warn("Fallo cargando camiones.json");
+        }
+    }
     // Inicializar o recargar mapa si estamos en la vista de conductor
     if (document.getElementById('mallorca-map')) {
         if (!driverMap) {
@@ -461,6 +501,29 @@ function renderDriverView() {
     // 4. Mi Vehículo
     const profileName = document.getElementById('driver-profile-name');
     if(profileName) profileName.textContent = currentUser.name;
+    
+    const vehicleInfo = document.getElementById('driver-vehicle-info');
+    if(vehicleInfo) {
+        if(camionesData.length > 0) {
+            const camion = currentUser.name.includes('Carlos') ? camionesData[0] : (camionesData[1] || camionesData[0]);
+            vehicleInfo.innerHTML = `
+                <div>
+                    <span class="text-sm text-muted">Matrícula</span><br>
+                    <strong class="mt-1" style="display:inline-block">${camion.matricula}</strong>
+                </div>
+                <div>
+                    <span class="text-sm text-muted">Vehículo</span><br>
+                    <strong class="mt-1" style="display:inline-block">${camion.marca} ${camion.modelo}</strong>
+                </div>
+                <div>
+                    <span class="text-sm text-muted">Próxima ITV</span><br>
+                    <strong class="mt-1 text-success" style="display:inline-block">${camion.estado_itv.proxima_inspeccion}</strong>
+                </div>
+            `;
+        } else {
+            vehicleInfo.innerHTML = `<div class="text-center w-100 py-2"><i class="ph ph-warning text-danger"></i> Datos no disponibles</div>`;
+        }
+    }
 }
 
 document.getElementById('driver-incident-form')?.addEventListener('submit', (e) => {
@@ -578,33 +641,142 @@ document.getElementById('form-complete-shipment')?.addEventListener('submit', (e
     e.target.reset();
 });
 
+let adminMap = null;
+let hotelsData = [];
+
 // ADMIN ROLE LOGIC
-function renderAdminView() {
-    const tbody = document.getElementById('admin-shipments-body');
-    
+async function renderAdminView() {
+    // 1. Cargar datos de hoteles si aún no existen
+    if (hotelsData.length === 0) {
+        try {
+            const res = await fetch('hoteles.json');
+            if(res.ok) hotelsData = await res.json();
+            else throw new Error('Network response not ok');
+        } catch(e) {
+            console.warn("Fallo cargando hoteles.json, usando datos básicos.");
+            hotelsData = appState.shipments.map(s => ({hotel: s.hotel, tiempo_m: 20, jaulas: 5}));
+        }
+    }
+
+    // 2. Render Overview
+    document.getElementById('admin-stat-hotels').textContent = hotelsData.length > 0 ? hotelsData.length : 12;
     document.getElementById('admin-stat-transit').textContent = appState.shipments.filter(s => s.status === 'en_camino').length;
     document.getElementById('admin-stat-tickets').textContent = appState.tickets.filter(t => t.status === 'revision').length;
 
-    if (appState.shipments.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No hay operaciones.</td></tr>`;
-        return;
+    // Inicializar mapa global Admin
+    if (document.getElementById('admin-map')) {
+        if (!adminMap) {
+            adminMap = L.map('admin-map').setView([39.6953, 2.9920], 9);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(adminMap);
+
+            const polarierIcon = L.divIcon({ html: '<div style="font-size:24px; text-shadow:0 0 5px #fff;">🏢</div>', className: 'custom-div-icon', iconSize: [24,24], iconAnchor: [12,24] });
+            const hubCoords = [39.5696, 2.6502]; 
+            L.marker(hubCoords, {icon: polarierIcon}).addTo(adminMap).bindPopup('<b>Polarier Central</b>');
+
+            const hotelIcon = L.divIcon({ html: '<div style="font-size:20px; text-shadow:0 0 5px #fff;">🏨</div>', className: 'custom-div-icon', iconSize: [20,20], iconAnchor: [10,20] });
+            
+            // Map over current active shipments to put markers
+            appState.shipments.filter(s => s.status !== 'entregado').forEach((s, idx) => {
+                const coords = [39.6953 + (Math.random()-0.5)*0.3, 2.9920 + (Math.random()-0.5)*0.3];
+                L.marker(coords, {icon: hotelIcon}).addTo(adminMap).bindPopup(`<b>${s.hotel}</b><br>Envío: ${s.id} (${s.driver})`);
+                L.polyline([hubCoords, coords], {color: '#facc15', weight: 2, opacity: 0.5, dashArray: '4, 8'}).addTo(adminMap);
+            });
+        }
+        setTimeout(() => adminMap.invalidateSize(), 300);
     }
 
-    tbody.innerHTML = appState.shipments.map(s => `
-        <tr>
-            <td class="fw-500">${s.id}</td>
-            <td>${s.hotel}</td>
-            <td class="text-muted">${s.driver}</td>
-            <td><span class="badge ${statusMap[s.status].class}">${statusMap[s.status].label}</span></td>
-            <td>${s.time}</td>
-            <td class="text-sm">
-                ${s.type} 
-                ${s.dirtyCarts !== null ? `<br><span class="text-xs text-success">(Retornó ${s.dirtyCarts} carros)</span>` : ''}
-                ${s.signature ? `<br><span class="text-xs text-primary fw-500"><i class="ph-fill ph-pen-nib"></i> Firmado</span>` : ''}
-            </td>
-        </tr>
-    `).join('');
+    // 3. Render Hotels DB
+    const tbodyHotels = document.getElementById('admin-hotels-body');
+    if (tbodyHotels) {
+        tbodyHotels.innerHTML = hotelsData.map((h, i) => i < 50 ? `
+            <tr>
+                <td class="fw-500">${h.hotel}</td>
+                <td>${h.tiempo_m}</td>
+                <td><span class="badge ghost">${h.jaulas} jaulas</span></td>
+            </tr>
+        ` : '').join('') + (hotelsData.length > 50 ? `<tr><td colspan="3" class="text-center text-muted text-sm">+ ${hotelsData.length - 50} hoteles más (usa el buscador)</td></tr>` : '');
+    }
+
+    // 4. Render Shipments
+    const tbodyShipments = document.getElementById('admin-shipments-body');
+    if(tbodyShipments) {
+        if (appState.shipments.length === 0) {
+            tbodyShipments.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No hay operaciones.</td></tr>`;
+        } else {
+            tbodyShipments.innerHTML = appState.shipments.map(s => `
+                <tr>
+                    <td class="fw-500">${s.id}</td>
+                    <td>${s.hotel}</td>
+                    <td class="text-muted">${s.driver}</td>
+                    <td><span class="badge ${statusMap[s.status]?.class || 'ghost'}">${statusMap[s.status]?.label || s.status}</span></td>
+                    <td>${s.time}</td>
+                    <td class="text-sm">
+                        ${s.type} 
+                        ${s.dirtyCarts !== null ? `<br><span class="text-xs text-success">(Retornó ${s.dirtyCarts} carros)</span>` : ''}
+                        ${s.signature ? `<br><span class="text-xs text-primary fw-500"><i class="ph-fill ph-pen-nib"></i> Firmado</span>` : ''}
+                    </td>
+                    <td>
+                        ${s.status === 'pendiente' ? `<button class="btn btn-sm btn-primary" onclick="openAssignDriver('${s.id}')">Asignar</button>` : `<span class="text-muted text-sm">--</span>`}
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    // 5. Render Tickets
+    const tbodyTickets = document.getElementById('admin-tickets-body');
+    if(tbodyTickets) {
+        if (appState.tickets.length === 0) {
+            tbodyTickets.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Bandeja limpia. No hay tickets.</td></tr>`;
+        } else {
+            tbodyTickets.innerHTML = appState.tickets.map(t => `
+                <tr>
+                    <td class="fw-500">${t.id}</td>
+                    <td>${t.isIncident ? '<i class="ph-fill ph-warning text-danger"></i> Chofer' : '<i class="ph-fill ph-buildings text-primary"></i> Hotel'}</td>
+                    <td><span class="badge ghost">${t.ref}</span></td>
+                    <td>${t.desc}</td>
+                    <td><span class="badge ${t.status === 'revision' ? 'in-progress' : 'completed'}">${t.status === 'revision' ? 'Bajo Revisión' : 'Cerrado'}</span></td>
+                    <td>
+                        ${t.status === 'revision' ? `<button class="btn btn-sm btn-secondary" onclick="closeTicket('${t.id}')">Marcar Resuelto</button>` : `<span class="text-success fw-500 text-sm">Cerrado</span>`}
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
 }
+
+window.closeTicket = function(id) {
+    const t = appState.tickets.find(tk => tk.id === id);
+    if(t) {
+        t.status = 'cerrado';
+        saveState();
+        showToast(`Ticket ${id} marcado como resuelto`);
+        renderAdminView();
+    }
+}
+
+window.openAssignDriver = function(id) {
+    document.getElementById('assign-shipment-id').value = id;
+    document.getElementById('assign-shipment-display').value = id;
+    document.getElementById('modal-assign-driver').classList.add('show');
+}
+
+document.getElementById('form-assign-driver')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const id = document.getElementById('assign-shipment-id').value;
+    const driver = document.getElementById('assign-driver-select').value;
+    const shipment = appState.shipments.find(s => s.id === id);
+    if(shipment) {
+        shipment.driver = driver;
+        shipment.status = 'preparado';
+        saveState();
+        showToast(`Chofer ${driver} asignado a ${id}`);
+        renderAdminView();
+    }
+    document.getElementById('modal-assign-driver').classList.remove('show');
+});
 
 
 // GLOBAL UTILS
