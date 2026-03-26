@@ -204,8 +204,22 @@
                             </div>
                             <div class="grid-layout mt-4">
                                 <div class="card simple-panel col-span-2">
-                                    <h3><i class="ph-fill ph-map-trifold text-primary"></i> Paradas Pendientes</h3>
-                                    <div class="route-list mt-4" id="driver-routes"></div>
+                                    <h3><i class="ph-fill ph-list-dashes text-primary"></i> Envíos de hoy</h3>
+                                    <div class="table-responsive mt-4">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID-Envio</th>
+                                                    <th>Hotel</th>
+                                                    <th>ID-Chofer</th>
+                                                    <th>ID-Camion</th>
+                                                    <th>ACCIÓN</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="driver-routes">
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                                 <div class="card simple-panel flex-col-between" style="justify-content: flex-start;">
                                     <h3><i class="ph-fill ph-info text-primary"></i> Resumen de tu jornada</h3>
@@ -468,30 +482,78 @@
         </div>
 
         <div id="modal-complete-shipment" class="modal">
-            <div class="modal-content simple-panel fade-in-up">
+            <div class="modal-content simple-panel fade-in-up" style="max-width: 900px;">
                 <span class="close-modal"><i class="ph ph-x"></i></span>
-                <h3>Confirmar Entrega</h3>
-                <div class="bg-light mb-4 text-center">
-                    <p id="complete-shipment-hotel" class="fw-500"></p>
+                <div class="flex-between mb-4">
+                    <h3><i class="ph-fill ph-receipt text-primary"></i> Albarán de Entrega</h3>
+                    <button type="button" class="btn btn-sm btn-ghost" onclick="alert('Descargando albarán en PDF...\n(Simulación de descarga)')"><i class="ph ph-download-simple"></i> PDF</button>
                 </div>
-                <form id="form-complete-shipment">
-                    <div class="form-group">
-                        <label>Carros de ropa sucia recogidos</label>
-                        <input type="number" id="dirty-carts" min="0" required placeholder="0">
-                    </div>
+                
+                <form id="form-complete-shipment" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: stretch;">
                     
-                    <div class="form-group">
-                        <div class="flex-between" style="margin-bottom: 0.5rem;">
-                            <label style="margin: 0;">Firma del Cliente</label>
-                            <button type="button" id="clear-signature" class="btn btn-sm btn-ghost" style="padding: 0.2rem 0.5rem;">Limpiar</button>
+                    <!-- Left Column: Details & Inputs -->
+                    <div style="display: flex; flex-direction: column;">
+                        <div class="bg-light mb-4" style="padding: 1.25rem; border-radius: 8px; border: 1px dashed #ccc; flex-grow: 1;">
+                            <div class="flex-between mb-3">
+                                <div>
+                                    <p class="text-xs text-muted mb-1">EMISOR</p>
+                                    <p class="fw-600 m-0">Polarier Logistics</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-muted mb-1">CLIENTE DESTINO</p>
+                                    <p class="fw-600 m-0 text-primary" id="albaran-hotel-name">--</p>
+                                </div>
+                            </div>
+                            <hr style="border: 0; border-top: 1px dashed #ccc; margin: 1rem 0;">
+                            <div class="flex-between mb-3">
+                                <div>
+                                    <p class="text-xs text-muted mb-1">REFERENCIA</p>
+                                    <p class="fw-500 m-0" id="albaran-shipment-id">--</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-muted mb-1">TIPO SERVICIO</p>
+                                    <p class="fw-500 m-0" id="albaran-shipment-type">--</p>
+                                </div>
+                            </div>
+                            <div class="flex-between">
+                                <div>
+                                    <p class="text-xs text-muted mb-1">CHOFER</p>
+                                    <p class="fw-500 m-0" id="albaran-shipment-driver">--</p>
+                                </div>
+                            </div>
                         </div>
-                        <canvas id="signature-pad" width="352" height="150" style="border: 1px solid var(--border-color); border-radius: 4px; background: #fff; width: 100%; touch-action: none; cursor: crosshair;"></canvas>
-                        <p class="text-xs text-muted mt-1">El cliente debe firmar aquí para conformar el servicio.</p>
+
+                        <div class="form-group">
+                            <label>Carros ropa sucia recogidos</label>
+                            <input type="number" id="dirty-carts" min="0" required placeholder="0">
+                        </div>
+                        
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Observaciones o incidencias (Opcional)</label>
+                            <textarea id="shipment-incidence" rows="2" placeholder="Añadir comentarios sobre la entrega..."></textarea>
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-success full-width mt-4">
-                        Marcar como Entregado
-                    </button>
+                    <!-- Right Column: Signature & Actions -->
+                    <div style="display: flex; flex-direction: column; justify-content: space-between;">
+                        <div class="form-group mb-0">
+                            <div class="flex-between" style="margin-bottom: 0.5rem;">
+                                <label style="margin: 0;">Firma de Conformidad del Cliente</label>
+                                <button type="button" id="clear-signature" class="btn btn-sm btn-ghost" style="padding: 0.2rem 0.5rem;"><i class="ph ph-eraser"></i> Limpiar</button>
+                            </div>
+                            <canvas id="signature-pad" width="400" height="200" style="border: 1px solid var(--border-color); border-radius: 4px; background: #fff; width: 100%; touch-action: none; cursor: crosshair; display: block;"></canvas>
+                            <p class="text-xs text-muted mt-2">Al firmar, el hotel acepta las cantidades entregadas y el estado general del servicio prestado por Polarier Logistics.</p>
+                        </div>
+
+                        <div style="margin-top: 1rem;">
+                            <button type="submit" class="btn btn-success full-width" style="font-size: 1.1rem; padding: 0.75rem;">
+                                <i class="ph-fill ph-check-circle"></i> Confirmar y Finalizar Entrega
+                            </button>
+                            <button type="button" class="btn btn-secondary full-width mt-2" onclick="alert('Generando y descargando PDF simulado...')">
+                                <i class="ph ph-file-pdf"></i> Descargar Copia del Albarán
+                            </button>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>

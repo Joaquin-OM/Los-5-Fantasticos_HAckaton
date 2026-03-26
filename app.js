@@ -4,7 +4,10 @@ const defaultState = {
         { id: '#ENV-401', hotel: 'Hotel Ritz', driver: 'Carlos R.', status: 'preparado', time: '14:00 - 16:00', dirtyCarts: null, type: 'Limpios + Recogida', signature: null },
         { id: '#ENV-402', hotel: 'Hotel Hilton', driver: 'Ana G.', status: 'entregado', time: '08:00 - 10:00', dirtyCarts: 4, type: 'Solo Entrega', signature: null },
         { id: '#ENV-403', hotel: 'Four Seasons', driver: 'Carlos R.', status: 'en_camino', time: '16:00 - 18:00', dirtyCarts: null, type: 'Recogida Ropa Sucia', signature: null },
-        { id: '#ENV-404', hotel: 'Marriott', driver: 'Ana G.', status: 'preparado', time: 'Mañana', dirtyCarts: null, type: 'Limpios + Recogida', signature: null }
+        { id: '#ENV-404', hotel: 'Marriott', driver: 'Ana G.', status: 'preparado', time: 'Mañana', dirtyCarts: null, type: 'Limpios + Recogida', signature: null },
+        { id: '#ENV-405', hotel: 'Meliá Palma', driver: 'Carlos R.', status: 'preparado', time: '09:00 - 11:00', dirtyCarts: null, type: 'Solo Entrega', signature: null },
+        { id: '#ENV-406', hotel: 'Iberostar', driver: 'Carlos R.', status: 'en_camino', time: '11:00 - 13:00', dirtyCarts: null, type: 'Limpios + Recogida', signature: null },
+        { id: '#ENV-407', hotel: 'Riu Palace', driver: 'Carlos R.', status: 'preparado', time: '12:00 - 14:00', dirtyCarts: null, type: 'Recogida Ropa Sucia', signature: null }
     ],
     tickets: [
         { id: '#TK-9021', ref: '#ENV-402', desc: 'Agregar 2 carros extras de toallas piscina', date: 'Hoy, 09:30', status: 'revision' }
@@ -450,27 +453,32 @@ async function renderDriverView() {
 
     if(list) {
         if (pendingRoutes.length === 0) {
-            list.innerHTML = `<div class="empty-state"><p>No tienes entregas pendientes hoy</p></div>`;
+            list.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No tienes entregas pendientes hoy</td></tr>`;
         } else {
-            list.innerHTML = pendingRoutes.map(s => `
-                <div class="route-item">
-                    <div>
-                        <div class="mb-2">
-                            <span class="badge ${statusMap[s.status].class}">${statusMap[s.status].label}</span>
-                            <span class="text-xs fw-500 text-muted ms-2">${s.id}</span>
-                        </div>
-                        <h4>${s.hotel}</h4>
-                        <div class="mt-2 text-sm text-muted">
-                           <span>🕒 ${s.time}</span> | <span>📦 ${s.type}</span>
-                        </div>
-                    </div>
-                    <div>
+            list.innerHTML = pendingRoutes.map(s => {
+                const camion = camionesData.length > 0 
+                    ? (s.driver.includes('Carlos') ? camionesData[0] : (camionesData[1] || camionesData[0])) 
+                    : { matricula: '--' };
+                return `
+                <tr>
+                    <td class="fw-500">${s.id}
+                        ${s.status === 'preparado' ? `<br><span class="badge pending mt-1">Preparado</span>` : ''}
+                        ${s.status === 'en_camino' ? `<br><span class="badge in-progress mt-1">En Ruta</span>` : ''}
+                        ${s.status === 'pendiente' ? `<br><span class="badge ghost mt-1">Sin Asignar</span>` : ''}
+                    </td>
+                    <td>${s.hotel}
+                        <br><span class="text-xs text-muted">(${s.time})</span>
+                    </td>
+                    <td>${s.driver}</td>
+                    <td><span class="badge ghost mt-1">${camion.matricula}</span>
+                    </td>
+                    <td>
                         <button class="btn btn-sm btn-primary" onclick="openCompleteShipment('${s.id}', '${s.hotel}')">
                             Entregar
                         </button>
-                    </div>
-                </div>
-            `).join('');
+                    </td>
+                </tr>
+            `}).join('');
         }
     }
 
@@ -615,25 +623,41 @@ function clearSignaturePad() {
 
 window.openCompleteShipment = function(id, hotel) {
     currentShipmentToCompleteId = id;
-    document.getElementById('complete-shipment-hotel').textContent = hotel;
-    clearSignaturePad(); // Limpiar la firma anterior al abrir el modal
+    const shipment = appState.shipments.find(s => s.id === id);
+    if(shipment) {
+        document.getElementById('albaran-hotel-name').textContent = shipment.hotel;
+        document.getElementById('albaran-shipment-id').textContent = shipment.id;
+        document.getElementById('albaran-shipment-type').textContent = shipment.type;
+        document.getElementById('albaran-shipment-driver').textContent = shipment.driver;
+    }
+    
+    // Preparar el formulario
+    document.getElementById('dirty-carts').value = '';
+    document.getElementById('shipment-incidence').value = '';
+    clearSignaturePad(); 
     document.getElementById('modal-complete-shipment').classList.add('show');
 }
 
 document.getElementById('form-complete-shipment')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const carts = document.getElementById('dirty-carts').value;
+    const incidenceMsg = document.getElementById('shipment-incidence').value;
     const signatureData = signatureCanvas.toDataURL(); // Extraer imagen de la firma
-    
-    // Validar firma vacía verificando los píxeles (opcional, en este caso solo guardamos la imagen generada)
     
     const shipment = appState.shipments.find(s => s.id === currentShipmentToCompleteId);
     if(shipment) {
         shipment.status = 'entregado';
         shipment.dirtyCarts = carts;
-        shipment.signature = signatureData; // Guardar firma en el estado del envío
+        shipment.signature = signatureData; 
+        if (incidenceMsg.trim() !== '') {
+            // Register incidence
+            const newId = '#INC-' + Math.floor(Math.random() * 9000 + 1000);
+            appState.tickets.unshift({
+                id: newId, ref: shipment.id, hotel: shipment.hotel, driver: shipment.driver, desc: `(En entrega) ${incidenceMsg}`, date: 'Justo Ahora', status: 'revision', isIncident: true
+            });
+        }
         saveState();
-        showToast(`Envío completado`);
+        showToast(incidenceMsg.trim() !== '' ? `Envío completado (Incidencia registrada)` : `Envío completado`);
         renderDriverView();
     }
     
