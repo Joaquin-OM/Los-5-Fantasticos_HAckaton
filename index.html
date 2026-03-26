@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
@@ -198,16 +200,101 @@
                     </div>
 
                     <div id="driver-dashboard" class="role-view">
-                        <div class="grid-layout">
-                            <div class="card simple-panel col-span-2">
-                                <h3><i class="ph-fill ph-map-trifold text-muted"></i> Ruta de Hoy</h3>
-                                <div class="route-list mt-4" id="driver-routes">
-                                    </div>
+                        <!-- Ruta de Hoy -->
+                        <div id="driver-route" class="sub-view active">
+                            <div class="card simple-panel mb-4" style="padding: 0; overflow: hidden; height: 300px; border-bottom: none;">
+                                <div id="mallorca-map" style="width: 100%; height: 100%; z-index: 1;"></div>
                             </div>
+                            <div class="grid-layout mt-4">
+                                <div class="card simple-panel col-span-2">
+                                    <h3><i class="ph-fill ph-map-trifold text-primary"></i> Paradas Pendientes</h3>
+                                    <div class="route-list mt-4" id="driver-routes"></div>
+                                </div>
+                                <div class="card simple-panel flex-col-between" style="justify-content: flex-start;">
+                                    <h3><i class="ph-fill ph-info text-primary"></i> Resumen de tu jornada</h3>
+                                    <div class="stats-grid mt-4" id="driver-stats"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Historial de Entregas -->
+                        <div id="driver-history" class="sub-view">
                             <div class="card simple-panel">
-                                <h3><i class="ph-fill ph-info text-muted"></i> Resumen de tu jornada</h3>
-                                <div class="stats-grid mt-4" id="driver-stats">
+                                <h3><i class="ph-fill ph-check-square-offset text-primary"></i> Entregas Completadas</h3>
+                                <div class="table-responsive mt-4">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID ENVÍO</th>
+                                                <th>CLIENTE (HOTEL)</th>
+                                                <th>HORARIO</th>
+                                                <th>TIPO</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="driver-history-body">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reportar Problema -->
+                        <div id="driver-incident" class="sub-view">
+                            <div class="card simple-panel" style="max-width: 600px; margin: 0 auto;">
+                                <div>
+                                    <h3><i class="ph-fill ph-warning text-danger"></i> Reportar Retraso / Problema</h3>
+                                    <p class="text-muted text-sm mb-4">Avisa a la central en caso de incidencias en ruta.</p>
+                                </div>
+                                <form id="driver-incident-form">
+                                    <div class="form-group">
+                                        <label>Envío Afectado (Opcional)</label>
+                                        <select id="driver-incident-ref">
+                                        </select>
                                     </div>
+                                    <div class="form-group">
+                                        <label>Motivo de la alerta</label>
+                                        <select id="driver-incident-type" required>
+                                            <option value="Tráfico / Retraso">Tráfico / Retraso en ruta</option>
+                                            <option value="Problema Mecánico">Avería del vehículo</option>
+                                            <option value="Problema en Hotel">Problema al recibir/entregar (Hotel)</option>
+                                            <option value="Otro">Otro</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Detalles adicionales</label>
+                                        <textarea id="driver-incident-desc" rows="4" required placeholder="Ej. Pinchazo en la M-30..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn full-width mt-4" style="background:#f59e0b;color:#000;font-weight:600;border:none;">Emitir Alerta a Central</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Mi Vehículo -->
+                        <div id="driver-profile" class="sub-view">
+                            <div class="card simple-panel" style="max-width: 600px; margin: 0 auto;">
+                                <div class="text-center mb-4">
+                                    <div class="avatar" style="width: 80px; height: 80px; font-size: 2.5rem; margin: 0 auto 1rem;"><i class="ph-fill ph-user"></i></div>
+                                    <h3 id="driver-profile-name">Conductor</h3>
+                                    <p class="text-muted text-sm">Chofer titular activo</p>
+                                </div>
+                                
+                                <hr style="border:0;border-top:1px solid var(--border-color);margin: 1.5rem 0;">
+                                
+                                <h4 class="mb-2"><i class="ph-fill ph-van text-muted"></i> Información del Vehículo Asignado</h4>
+                                <div class="bg-light mt-2 flex-between" style="padding: 1rem; border-radius: 4px;">
+                                    <div>
+                                        <span class="text-sm text-muted">Matrícula</span><br>
+                                        <strong class="mt-1" style="display:inline-block">1234-XYZ</strong>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm text-muted">Modelo</span><br>
+                                        <strong class="mt-1" style="display:inline-block">MB Sprinter '24</strong>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm text-muted">Estado</span><br>
+                                        <strong class="mt-1 text-success" style="display:inline-block">Óptimo</strong>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

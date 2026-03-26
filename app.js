@@ -100,12 +100,15 @@ function initDashboardView() {
     } 
     else if (currentUser.role === 'driver') {
         sidebar.innerHTML = `
-            <li><a href="#" class="active"><i class="ph-fill ph-map-trifold"></i> <span>Ruta de Trabajo</span></a></li>
-            <li><a href="#"><i class="ph ph-user"></i> <span>Mi Perfil</span></a></li>
+            <li><a href="#" class="nav-item active" onclick="switchDriverView('driver-route', this)"><i class="ph-fill ph-map-trifold"></i> <span>Ruta de Trabajo</span></a></li>
+            <li><a href="#" class="nav-item" onclick="switchDriverView('driver-history', this)"><i class="ph-fill ph-check-square-offset"></i> <span>Historial de Entregas</span></a></li>
+            <li><a href="#" class="nav-item" onclick="switchDriverView('driver-incident', this)"><i class="ph-fill ph-warning"></i> <span>Reportar Problema</span></a></li>
+            <li><a href="#" class="nav-item" onclick="switchDriverView('driver-profile', this)"><i class="ph-fill ph-user"></i> <span>Mi Vehículo</span></a></li>
         `;
-        document.getElementById('current-page-title').textContent = `Portal Logístico - ${currentUser.name}`;
+        document.getElementById('current-page-title').textContent = `Ruta de Trabajo`;
         switchDashboardRole('driver-dashboard');
         renderDriverView();
+        switchDriverView('driver-route', sidebar.querySelector('a'));
     }
     else {
         sidebar.innerHTML = `
@@ -141,6 +144,30 @@ window.switchClientView = function(viewId, element) {
             'client-support': 'Soporte'
         };
         document.getElementById('current-page-title').textContent = titleMap[viewId] || `Portal del Hotel`;
+    }
+}
+
+window.switchDriverView = function(viewId, element) {
+    document.querySelectorAll('#driver-dashboard .sub-view').forEach(v => v.classList.remove('active'));
+    let target = document.getElementById(viewId);
+    if(target) target.classList.add('active');
+    
+    // Leaflet map fix when showing the map container
+    if (viewId === 'driver-route' && typeof driverMap !== 'undefined' && driverMap) {
+        setTimeout(() => driverMap.invalidateSize(), 300);
+    }
+    
+    if (element) {
+        document.querySelectorAll('#sidebar-links a').forEach(a => a.classList.remove('active'));
+        element.classList.add('active');
+        
+        const titleMap = {
+            'driver-route': 'Ruta de Trabajo',
+            'driver-history': 'Historial de Entregas',
+            'driver-incident': 'Reporte de Rutas',
+            'driver-profile': 'Mi Vehículo / Perfil'
+        };
+        document.getElementById('current-page-title').textContent = titleMap[viewId] || `Portal Logístico`;
     }
 }
 
@@ -314,55 +341,146 @@ document.getElementById('form-create-incident')?.addEventListener('submit', (e) 
 });
 
 
+// MAPA LEAFLET PARA CHOFER
+let driverMap = null;
+
 // DRIVER ROLE LOGIC
 function renderDriverView() {
+    // Inicializar o recargar mapa si estamos en la vista de conductor
+    if (document.getElementById('mallorca-map')) {
+        if (!driverMap) {
+            driverMap = L.map('mallorca-map').setView([39.6953, 2.9920], 9);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(driverMap);
+
+            // Marcador Central Polarier
+            const polarierIcon = L.divIcon({ html: '<div style="font-size:24px; text-shadow:0 0 5px #fff;">🏢</div>', className: 'custom-div-icon', iconSize: [24,24], iconAnchor: [12,24] });
+            const hubCoords = [39.5696, 2.6502]; // Palma
+            L.marker(hubCoords, {icon: polarierIcon}).addTo(driverMap).bindPopup('<b>Polarier Central (Palma)</b>');
+
+            const hotelesMap = {
+                'Hotel Ritz': [39.5085, 2.5366],     // Magaluf
+                'Hotel Hilton': [39.8525, 3.1189],   // Alcudia
+                'Four Seasons': [39.7118, 3.4611],   // Cala Ratjada
+                'Marriott': [39.5393, 2.7487]        // Arenal
+            };
+
+            const hotelIcon = L.divIcon({ html: '<div style="font-size:24px; text-shadow:0 0 5px #fff;">🏨</div>', className: 'custom-div-icon', iconSize: [24,24], iconAnchor: [12,24] });
+            
+            const myRoutes = appState.shipments.filter(s => s.driver === currentUser.name);
+            const pendingRoutes = myRoutes.filter(s => s.status !== 'entregado');
+            
+            const routeCoords = [hubCoords];
+            
+            pendingRoutes.forEach(s => {
+                const coords = hotelesMap[s.hotel] || [39.6953 + (Math.random()-0.5)*0.2, 2.9920 + (Math.random()-0.5)*0.2];
+                L.marker(coords, {icon: hotelIcon}).addTo(driverMap).bindPopup(`<b>${s.hotel}</b><br>Envío: ${s.id}`);
+                routeCoords.push(coords);
+            });
+
+            if (routeCoords.length > 1) {
+                L.polyline(routeCoords, {color: '#f59e0b', weight: 4, dashArray: '5, 10'}).addTo(driverMap);
+                driverMap.fitBounds(L.polyline(routeCoords).getBounds(), {padding: [30, 30]});
+            }
+        }
+        setTimeout(() => driverMap.invalidateSize(), 300);
+    }
+
+    // 1. Ruta de Hoy
     const list = document.getElementById('driver-routes');
     const stats = document.getElementById('driver-stats');
     
     const myRoutes = appState.shipments.filter(s => s.driver === currentUser.name);
-    const pending = myRoutes.filter(s => s.status !== 'entregado');
-    const done = myRoutes.length - pending.length;
+    const pendingRoutes = myRoutes.filter(s => s.status !== 'entregado');
+    const doneRoutes = myRoutes.filter(s => s.status === 'entregado');
 
-    stats.innerHTML = `
-        <div class="stat-box">
-            <span class="text-xs text-muted">PENDIENTES</span>
-            <span class="stat-value text-main">${pending.length}</span>
-        </div>
-        <div class="stat-box">
-            <span class="text-xs text-muted">COMPLETADOS</span>
-            <span class="stat-value text-success">${done}</span>
-        </div>
-    `;
-
-    if (myRoutes.length === 0) {
-        list.innerHTML = `<div class="empty-state"><p>Tu hoja de ruta está vacía</p></div>`;
-        return;
+    if(stats) {
+        stats.innerHTML = `
+            <div class="stat-box">
+                <span class="text-xs text-muted">PENDIENTES</span>
+                <span class="stat-value text-main">${pendingRoutes.length}</span>
+            </div>
+            <div class="stat-box">
+                <span class="text-xs text-muted">COMPLETADOS</span>
+                <span class="stat-value text-success">${doneRoutes.length}</span>
+            </div>
+        `;
     }
 
-    list.innerHTML = myRoutes.map(s => {
-        const isDone = s.status === 'entregado';
-        return `
-        <div class="route-item ${isDone ? 'completed-item' : ''}">
-            <div>
-                <div class="mb-2">
-                    <span class="badge ${statusMap[s.status].class}">${statusMap[s.status].label}</span>
-                    <span class="text-xs fw-500 text-muted ms-2">${s.id}</span>
+    if(list) {
+        if (pendingRoutes.length === 0) {
+            list.innerHTML = `<div class="empty-state"><p>No tienes entregas pendientes hoy</p></div>`;
+        } else {
+            list.innerHTML = pendingRoutes.map(s => `
+                <div class="route-item">
+                    <div>
+                        <div class="mb-2">
+                            <span class="badge ${statusMap[s.status].class}">${statusMap[s.status].label}</span>
+                            <span class="text-xs fw-500 text-muted ms-2">${s.id}</span>
+                        </div>
+                        <h4>${s.hotel}</h4>
+                        <div class="mt-2 text-sm text-muted">
+                           <span>🕒 ${s.time}</span> | <span>📦 ${s.type}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-primary" onclick="openCompleteShipment('${s.id}', '${s.hotel}')">
+                            Entregar
+                        </button>
+                    </div>
                 </div>
-                <h4>${s.hotel}</h4>
-                <div class="mt-2 text-sm text-muted">
-                   <span>🕒 ${s.time}</span> | <span>📦 ${s.type}</span>
-                </div>
-            </div>
-            <div>
-                ${!isDone ? 
-                `<button class="btn btn-sm btn-primary" onclick="openCompleteShipment('${s.id}', '${s.hotel}')">
-                    Entregar
-                </button>` : 
-                `<span class="text-success fw-500">Hecho</span>`}
-            </div>
-        </div>
-    `}).join('');
+            `).join('');
+        }
+    }
+
+    // 2. Historial de Entregas
+    const historyBody = document.getElementById('driver-history-body');
+    if (historyBody) {
+        if (doneRoutes.length === 0) {
+            historyBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">No hay entregas completadas aún.</td></tr>`;
+        } else {
+            historyBody.innerHTML = doneRoutes.map(s => `
+                <tr>
+                    <td class="fw-500">${s.id}</td>
+                    <td>${s.hotel}</td>
+                    <td>${s.time}</td>
+                    <td class="text-sm">${s.type} ${s.signature ? '<br><span class="text-xs text-success">Firmado</span>' : ''}</td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    // 3. Reportar Problema
+    const incidentRef = document.getElementById('driver-incident-ref');
+    if (incidentRef) {
+        incidentRef.innerHTML = `<option value="Ninguno">Ninguno / General</option>` + 
+            myRoutes.map(s => `<option value="${s.id}">${s.id} - ${s.hotel}</option>`).join('');
+    }
+
+    // 4. Mi Vehículo
+    const profileName = document.getElementById('driver-profile-name');
+    if(profileName) profileName.textContent = currentUser.name;
 }
+
+document.getElementById('driver-incident-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const ref = document.getElementById('driver-incident-ref').value;
+    const type = document.getElementById('driver-incident-type').value;
+    const desc = document.getElementById('driver-incident-desc').value;
+    const newId = '#INC-' + Math.floor(Math.random() * 9000 + 1000);
+    
+    appState.tickets.unshift({
+        id: newId, ref: ref !== 'Ninguno' ? ref : 'Ruta general', hotel: null, driver: currentUser.name, desc: `(${type}) ${desc}`, date: 'Justo Ahora', status: 'revision', isIncident: true
+    });
+    saveState();
+    
+    showToast('Alerta enviada a central');
+    e.target.reset();
+    
+    const routeBtn = document.querySelector('#sidebar-links a[onclick*="driver-route"]');
+    if(routeBtn) switchDriverView('driver-route', routeBtn);
+});
 
 // FIRMA DIGITAL LOGIC
 let signatureCanvas, signatureCtx;
