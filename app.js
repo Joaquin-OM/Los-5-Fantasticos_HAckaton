@@ -105,6 +105,7 @@ function initDashboardView() {
     else if (currentUser.role === 'driver') {
         sidebar.innerHTML = `
             <li><a href="#" class="nav-item active" onclick="switchDriverView('driver-route', this)"><i class="ph-fill ph-map-trifold"></i> <span>Ruta de Trabajo</span></a></li>
+            <li><a href="#" class="nav-item" onclick="switchDriverView('driver-scanner', this)"><i class="ph-fill ph-qr-code"></i> <span>Escanear Bolsa</span></a></li>
             <li><a href="#" class="nav-item" onclick="switchDriverView('driver-history', this)"><i class="ph-fill ph-check-square-offset"></i> <span>Historial de Entregas</span></a></li>
             <li><a href="#" class="nav-item" onclick="switchDriverView('driver-incident', this)"><i class="ph-fill ph-warning"></i> <span>Reportar Problema</span></a></li>
             <li><a href="#" class="nav-item" onclick="switchDriverView('driver-profile', this)"><i class="ph-fill ph-user"></i> <span>Mi Vehículo</span></a></li>
@@ -163,12 +164,21 @@ window.switchDriverView = function(viewId, element) {
         setTimeout(() => driverMap.invalidateSize(), 300);
     }
     
+    if (viewId === 'driver-scanner') {
+        setTimeout(() => { if (typeof iniciarEscaner === 'function') iniciarEscaner(); }, 300);
+    } else {
+        if (typeof html5QrcodeScanner !== 'undefined' && html5QrcodeScanner) {
+            try { html5QrcodeScanner.pause(); } catch(e) {}
+        }
+    }
+
     if (element) {
         document.querySelectorAll('#sidebar-links a').forEach(a => a.classList.remove('active'));
         element.classList.add('active');
         
         const titleMap = {
             'driver-route': 'Ruta de Trabajo',
+            'driver-scanner': 'Escanear Bolsa',
             'driver-history': 'Historial de Entregas',
             'driver-incident': 'Reporte de Rutas',
             'driver-profile': 'Mi Vehículo / Perfil'
@@ -825,4 +835,42 @@ function showToast(message, type = 'success') {
     setTimeout(() => {
         if(container.contains(toast)) toast.remove();
     }, 3000);
+}
+
+// LOGICA LECTOR QR GLOBAL
+let html5QrcodeScanner = null;
+
+window.iniciarEscaner = function() {
+    if (html5QrcodeScanner) return; // ya inicializado
+    if (typeof Html5QrcodeScanner === 'undefined') {
+        console.error("Html5QrcodeScanner no está definido. Revisa el link de la librería en el HTML.");
+        return;
+    }
+    html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
+    html5QrcodeScanner.render(onScanSuccess);
+}
+
+function onScanSuccess(decodedText) {
+    document.getElementById('scanner-panel').style.display = 'none';
+    document.getElementById('result-panel').style.display = 'block';
+    document.getElementById('qr-result-text').innerText = decodedText;
+    
+    if(html5QrcodeScanner) {
+        try { html5QrcodeScanner.pause(); } catch(e) {}
+    }
+}
+
+window.reiniciarEscanerQR = function() {
+    document.getElementById('result-panel').style.display = 'none';
+    document.getElementById('scanner-panel').style.display = 'block';
+    if(html5QrcodeScanner) {
+        try { html5QrcodeScanner.resume(); } catch(e) {}
+    }
+}
+
+window.confirmarRecogidaQR = function() {
+    const codigo = document.getElementById('qr-result-text').innerText;
+    showToast("Bolsa/Orden registrada (QR: " + codigo + ")", "success");
+    reiniciarEscanerQR();
 }
