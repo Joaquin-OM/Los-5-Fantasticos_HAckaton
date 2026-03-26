@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polarier - Lavandería Industrial</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body>
+    <div id="app-container">
+        <!-- Notificaciones -->
+        <div id="toast-container"></div>
+
+        <!-- LOGIN SECTION -->
+        <section id="login-section" class="view active-view align-center">
+            <div class="login-card simple-panel fade-in-up">
+                <div class="logo-container">
+                    <i class="ph-fill ph-washing-machine logo-icon"></i>
+                    <h1>Polarier</h1>
+                    <p>Lavandería Industrial</p>
+                </div>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="role-select">Ingresar como</label>
+                        <select id="role-select" required>
+                            <option value="client">Cliente (Hotel Ritz)</option>
+                            <option value="driver">Chofer (Carlos R.)</option>
+                            <option value="admin">Administrador (Polarier Central)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Usuario</label>
+                        <input type="text" id="username" value="demo_user" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" value="********" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Ingresar
+                    </button>
+                    <p class="mt-4 text-center text-muted" style="font-size: 0.8rem;">Modo de demostración - Selecciona
+                        el rol y entra.</p>
+                </form>
+            </div>
+        </section>
+
+        <!-- DASHBOARD CONTAINER -->
+        <section id="dashboard-container" class="view">
+            <nav class="sidebar simple-panel">
+                <div class="sidebar-header">
+                    <i class="ph-fill ph-washing-machine text-primary"></i>
+                    <h2>Polarier</h2>
+                </div>
+                <!-- Menú dinámico inyectado por JS -->
+                <ul class="nav-links" id="sidebar-links"></ul>
+                <div class="sidebar-footer">
+                    <button id="logout-btn" class="btn btn-ghost">
+                        <i class="ph ph-sign-out text-danger"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </nav>
+
+            <main class="main-content fade-in">
+                <header class="top-header simple-panel">
+                    <div class="header-title">
+                        <h2 id="current-page-title">Dashboard</h2>
+                    </div>
+                    <div class="header-user">
+                        <span id="user-greeting" class="fw-500">Hola, Usuario</span>
+                        <div class="avatar"><i class="ph-fill ph-user"></i></div>
+                    </div>
+                </header>
+
+                <div class="content-area" id="main-content-area">
+                    <!-- CONTENIDO CLIENTE -->
+                    <div id="client-dashboard" class="role-view">
+                        <div class="grid-layout">
+                            <!-- Estado de Envío Activo -->
+                            <div class="card simple-panel col-span-2">
+                                <h3><i class="ph-fill ph-truck text-muted"></i> Envío Reciente / En Curso</h3>
+                                <div id="client-active-shipment">
+                                    <div class="shipment-status" id="client-progress-bar">
+                                        <!-- JS inyecta los steps -->
+                                    </div>
+                                    <div class="shipment-details mt-4 bg-light" id="client-shipment-details">
+                                        <!-- JS inyecta info -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Crear Envío -->
+                            <div class="card simple-panel flex-col-between">
+                                <div>
+                                    <h3><i class="ph-fill ph-calendar-plus text-muted"></i> Solicitar Recolección</h3>
+                                    <p class="text-muted text-sm mb-4">Agenda un horario para recolectar ropa sucia.</p>
+                                </div>
+                                <form id="new-shipment-form">
+                                    <div class="form-group">
+                                        <label>Franja Horaria Preferida</label>
+                                        <select id="new-shipment-time" required>
+                                            <option>08:00 - 10:00</option>
+                                            <option>10:00 - 12:00</option>
+                                            <option>14:00 - 16:00</option>
+                                            <option>16:00 - 18:00</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Carros a entregar</label>
+                                        <input type="number" id="new-shipment-carts" min="1" max="50" required
+                                            placeholder="Ej. 5">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary full-width">Programar
+                                        Recolección</button>
+                                </form>
+                            </div>
+
+                            <!-- Tickets -->
+                            <div class="card simple-panel col-span-3">
+                                <div class="flex-between mb-4">
+                                    <h3><i class="ph-fill ph-ticket text-muted"></i> Soporte / Tickets</h3>
+                                    <button class="btn btn-secondary btn-sm" id="btn-new-ticket">
+                                        Nuevo Ticket
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID TICKET</th>
+                                                <th>REFERENCIA</th>
+                                                <th>DESCRIPCIÓN</th>
+                                                <th>FECHA</th>
+                                                <th>ESTADO</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="client-tickets-body">
+                                            <!-- Renderizado por JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONTENIDO CHOFER -->
+                    <div id="driver-dashboard" class="role-view">
+                        <div class="grid-layout">
+                            <div class="card simple-panel col-span-2">
+                                <h3><i class="ph-fill ph-map-trifold text-muted"></i> Ruta de Hoy</h3>
+                                <div class="route-list mt-4" id="driver-routes">
+                                    <!-- Generado por JS -->
+                                </div>
+                            </div>
+                            <div class="card simple-panel">
+                                <h3><i class="ph-fill ph-info text-muted"></i> Resumen de tu jornada</h3>
+                                <div class="stats-grid mt-4" id="driver-stats">
+                                    <!-- Generado por JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONTENIDO ADMIN -->
+                    <div id="admin-dashboard" class="role-view">
+                        <div class="grid-layout">
+                            <div class="stat-card simple-panel">
+                                <i class="ph-fill ph-buildings"></i>
+                                <div>
+                                    <h4>Hoteles Activos</h4>
+                                    <h2>12</h2>
+                                </div>
+                            </div>
+                            <div class="stat-card simple-panel">
+                                <i class="ph-fill ph-truck"></i>
+                                <div>
+                                    <h4>Envíos en Ruta</h4>
+                                    <h2 id="admin-stat-transit">2</h2>
+                                </div>
+                            </div>
+                            <div class="stat-card simple-panel">
+                                <i class="ph-fill ph-ticket"></i>
+                                <div>
+                                    <h4>Tickets de Hoteles</h4>
+                                    <h2 id="admin-stat-tickets" class="text-danger">1</h2>
+                                </div>
+                            </div>
+
+                            <div class="card simple-panel col-span-3 mt-4">
+                                <div class="flex-between mb-4">
+                                    <h3><i class="ph-fill ph-list-dashes text-muted"></i> Gestión de Operaciones</h3>
+                                    <div class="search-box">
+                                        <i class="ph ph-magnifying-glass"></i>
+                                        <input type="text" placeholder="Buscar ID o Hotel...">
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID ENVÍO</th>
+                                                <th>CLIENTE (HOTEL)</th>
+                                                <th>CHOFER (RUTA)</th>
+                                                <th>ESTADO</th>
+                                                <th>HORARIO</th>
+                                                <th>TIPO</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-shipments-body">
+                                            <!-- Generado por JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </section>
+
+        <!-- MODALES -->
+        <div id="modal-ticket" class="modal">
+            <div class="modal-content simple-panel fade-in-up">
+                <span class="close-modal"><i class="ph ph-x"></i></span>
+                <h3>Nuevo Ticket de Cambio</h3>
+                <p class="text-muted text-sm mb-4">El ticket llegará a la central de Polarier.</p>
+                <form id="form-create-ticket">
+                    <div class="form-group">
+                        <label>Envío de Referencia</label>
+                        <select id="ticket-ref-envio" required>
+                            <!-- Inyectado por js -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Detalle la modificación o incidencia</label>
+                        <textarea id="ticket-desc" rows="4" required
+                            placeholder="Ej. Por favor agregar 2 carros extras de toallas de piscina al envío..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width">Emitir Ticket</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="modal-complete-shipment" class="modal">
+            <div class="modal-content simple-panel fade-in-up">
+                <span class="close-modal"><i class="ph ph-x"></i></span>
+                <h3>Confirmar Entrega</h3>
+                <div class="bg-light mb-4 text-center">
+                    <p id="complete-shipment-hotel" class="fw-500"></p>
+                </div>
+                <form id="form-complete-shipment">
+                    <div class="form-group">
+                        <label>Carros de ropa sucia recogidos del hotel</label>
+                        <input type="number" id="dirty-carts" min="0" required placeholder="0">
+                        <p class="text-xs text-muted mt-1">Si solo fue entrega de limpios, introduzca 0.</p>
+                    </div>
+                    <button type="submit" class="btn btn-success full-width">
+                        Marcar como Entregado
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
