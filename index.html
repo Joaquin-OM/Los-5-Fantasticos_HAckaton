@@ -69,6 +69,9 @@
                     <div class="header-user">
                         <span id="user-greeting" class="fw-500">Hola, Usuario</span>
                         <div class="avatar"><i class="ph-fill ph-user"></i></div>
+                        <button id="logout-btn-header" class="btn btn-ghost" title="Cerrar Sesión" style="padding: 0.4rem; color: var(--danger); border: 1px solid var(--danger);">
+                            <i class="ph-fill ph-sign-out" style="font-size: 1.2rem;"></i>
+                        </button>
                     </div>
                 </header>
 
@@ -575,7 +578,7 @@
                     <button type="button" class="btn btn-sm btn-ghost" onclick="alert('Descargando albarán en PDF...\n(Simulación de descarga)')"><i class="ph ph-download-simple"></i> PDF</button>
                 </div>
                 
-                <form id="form-complete-shipment" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: stretch;">
+                <form id="form-complete-shipment" class="albaran-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: stretch;">
                     
                     <!-- Left Column: Details & Inputs -->
                     <div style="display: flex; flex-direction: column;">

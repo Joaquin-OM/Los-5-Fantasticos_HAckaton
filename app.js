@@ -87,12 +87,17 @@ loginForm.addEventListener('submit', (e) => {
 });
 
 // LOGOUT
-btnLogout.addEventListener('click', () => {
+const performLogout = () => {
     localStorage.removeItem('polarier_user');
     currentUser = null;
     showToast('Sesión cerrada');
     switchView('login-section');
-});
+};
+
+if (btnLogout) btnLogout.addEventListener('click', performLogout);
+
+const btnLogoutHeader = document.getElementById('logout-btn-header');
+if (btnLogoutHeader) btnLogoutHeader.addEventListener('click', performLogout);
 
 // LOGIC: SWITCH VIEW
 function switchView(viewId) {
