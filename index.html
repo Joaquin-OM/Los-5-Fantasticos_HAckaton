@@ -19,9 +19,7 @@
         <section id="login-section" class="view active-view align-center">
             <div class="login-card simple-panel fade-in-up">
                 <div class="logo-container">
-                    <i class="ph-fill ph-washing-machine logo-icon"></i>
-                    <h1>Polarier</h1>
-                    <p>Lavandería Industrial</p>
+                    <img src="logo-polarier.png" alt="Polarier Logo" style="height: 70px; margin-bottom: 1rem;">
                 </div>
                 <form id="login-form">
                     <div class="form-group">
@@ -52,8 +50,7 @@
         <section id="dashboard-container" class="view">
             <nav class="sidebar simple-panel">
                 <div class="sidebar-header">
-                    <i class="ph-fill ph-washing-machine text-primary"></i>
-                    <h2>Polarier</h2>
+                    <img src="logo-polarier.png" alt="Polarier Logo" style="height: 40px; margin-right: 10px;">
                 </div>
                 <ul class="nav-links" id="sidebar-links"></ul>
                 <div class="sidebar-footer">
@@ -281,19 +278,8 @@
                                 <hr style="border:0;border-top:1px solid var(--border-color);margin: 1.5rem 0;">
                                 
                                 <h4 class="mb-2"><i class="ph-fill ph-van text-muted"></i> Información del Vehículo Asignado</h4>
-                                <div class="bg-light mt-2 flex-between" style="padding: 1rem; border-radius: 4px;">
-                                    <div>
-                                        <span class="text-sm text-muted">Matrícula</span><br>
-                                        <strong class="mt-1" style="display:inline-block">1234-XYZ</strong>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm text-muted">Modelo</span><br>
-                                        <strong class="mt-1" style="display:inline-block">MB Sprinter '24</strong>
-                                    </div>
-                                    <div>
-                                        <span class="text-sm text-muted">Estado</span><br>
-                                        <strong class="mt-1 text-success" style="display:inline-block">Óptimo</strong>
-                                    </div>
+                                <div class="bg-light mt-2 flex-between" style="padding: 1rem; border-radius: 4px;" id="driver-vehicle-info">
+                                    <div class="text-center w-100 py-2"><i class="ph ph-spinner animate-spin"></i> Obteniendo datos de camiones...</div>
                                 </div>
                             </div>
                         </div>

@@ -370,9 +370,22 @@ document.getElementById('form-create-incident')?.addEventListener('submit', (e) 
 
 // MAPA LEAFLET PARA CHOFER
 let driverMap = null;
+let camionesData = [];
 
 // DRIVER ROLE LOGIC
-function renderDriverView() {
+async function renderDriverView() {
+    // Cargar camiones
+    if (camionesData.length === 0) {
+        try {
+            const res = await fetch('camiones.json');
+            if(res.ok) {
+                const data = await res.json();
+                camionesData = data.vehiculos || [];
+            }
+        } catch(e) {
+            console.warn("Fallo cargando camiones.json");
+        }
+    }
     // Inicializar o recargar mapa si estamos en la vista de conductor
     if (document.getElementById('mallorca-map')) {
         if (!driverMap) {
@@ -488,6 +501,29 @@ function renderDriverView() {
     // 4. Mi Vehículo
     const profileName = document.getElementById('driver-profile-name');
     if(profileName) profileName.textContent = currentUser.name;
+    
+    const vehicleInfo = document.getElementById('driver-vehicle-info');
+    if(vehicleInfo) {
+        if(camionesData.length > 0) {
+            const camion = currentUser.name.includes('Carlos') ? camionesData[0] : (camionesData[1] || camionesData[0]);
+            vehicleInfo.innerHTML = `
+                <div>
+                    <span class="text-sm text-muted">Matrícula</span><br>
+                    <strong class="mt-1" style="display:inline-block">${camion.matricula}</strong>
+                </div>
+                <div>
+                    <span class="text-sm text-muted">Vehículo</span><br>
+                    <strong class="mt-1" style="display:inline-block">${camion.marca} ${camion.modelo}</strong>
+                </div>
+                <div>
+                    <span class="text-sm text-muted">Próxima ITV</span><br>
+                    <strong class="mt-1 text-success" style="display:inline-block">${camion.estado_itv.proxima_inspeccion}</strong>
+                </div>
+            `;
+        } else {
+            vehicleInfo.innerHTML = `<div class="text-center w-100 py-2"><i class="ph ph-warning text-danger"></i> Datos no disponibles</div>`;
+        }
+    }
 }
 
 document.getElementById('driver-incident-form')?.addEventListener('submit', (e) => {
