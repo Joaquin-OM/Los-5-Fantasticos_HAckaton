@@ -484,27 +484,31 @@ async function renderDriverView() {
 
     if(list) {
         if (pendingRoutes.length === 0) {
-            list.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No tienes entregas pendientes hoy</td></tr>`;
+            list.innerHTML = `<tr><td colspan="2" class="text-center text-muted py-4">No tienes entregas pendientes hoy</td></tr>`;
         } else {
             list.innerHTML = pendingRoutes.map(s => {
-                const camion = camionesData.length > 0 
-                    ? (s.driver.includes('Carlos') ? camionesData[0] : (camionesData[1] || camionesData[0])) 
-                    : { matricula: '--' };
+                let badge = '';
+                if(s.status === 'preparado') badge = `<span class="badge pending">Preparado</span>`;
+                else if(s.status === 'en_camino') badge = `<span class="badge in-progress">En Ruta</span>`;
+                else if(s.status === 'pendiente') badge = `<span class="badge ghost">Sin Asignar</span>`;
+                
                 return `
                 <tr>
-                    <td class="fw-500">${s.id}
-                        ${s.status === 'preparado' ? `<br><span class="badge pending mt-1">Preparado</span>` : ''}
-                        ${s.status === 'en_camino' ? `<br><span class="badge in-progress mt-1">En Ruta</span>` : ''}
-                        ${s.status === 'pendiente' ? `<br><span class="badge ghost mt-1">Sin Asignar</span>` : ''}
+                    <td style="padding: 1rem;">
+                        <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                                <span class="fw-600 font-size:1.05rem; color:var(--text-main);">${s.hotel}</span> 
+                                ${badge}
+                            </div>
+                            <span class="text-sm text-muted" style="display:flex; align-items:center; gap:0.4rem;">
+                                <i class="ph-fill ph-tag"></i> <span class="text-primary fw-500">${s.id}</span>
+                                <span style="opacity:0.3;">|</span>
+                                <i class="ph-fill ph-clock"></i> ${s.time}
+                            </span>
+                        </div>
                     </td>
-                    <td>${s.hotel}
-                        <br><span class="text-xs text-muted">(${s.time})</span>
-                    </td>
-                    <td>${s.driver}</td>
-                    <td><span class="badge ghost mt-1">${camion.matricula}</span>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-primary" onclick="openCompleteShipment('${s.id}', '${s.hotel}')">
+                    <td style="text-align: center; vertical-align: middle;">
+                        <button class="btn btn-sm btn-primary" onclick="openCompleteShipment('${s.id}', '${s.hotel}')" style="width: 100%; justify-content:center;">
                             Entregar
                         </button>
                     </td>
