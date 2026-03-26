@@ -1,0 +1,382 @@
+[
+    {
+        "hotel": "ALMA BEACH",
+        "tiempo_m": 30,
+        "jaulas": 5
+    },
+    {
+        "hotel": "AMARAC HOTEL",
+        "tiempo_m": 13,
+        "jaulas": 3
+    },
+    {
+        "hotel": "AMARAC SUITES",
+        "tiempo_m": 12,
+        "jaulas": 2
+    },
+    {
+        "hotel": "APARTAMENTOS CALA D'OR",
+        "tiempo_m": 19,
+        "jaulas": 2
+    },
+    {
+        "hotel": "APARTHOTEL ELISA",
+        "tiempo_m": 11,
+        "jaulas": 3
+    },
+    {
+        "hotel": "AQUAMARIN",
+        "tiempo_m": 20,
+        "jaulas": 5
+    },
+    {
+        "hotel": "BAHÍA DEL ESTE",
+        "tiempo_m": 18,
+        "jaulas": 4
+    },
+    {
+        "hotel": "BALANGUERA BEACH",
+        "tiempo_m": 23,
+        "jaulas": 5
+    },
+    {
+        "hotel": "BELLA PAGUERA",
+        "tiempo_m": 31,
+        "jaulas": 7
+    },
+    {
+        "hotel": "BERMUDAS",
+        "tiempo_m": 21,
+        "jaulas": 4
+    },
+    {
+        "hotel": "BIKINI",
+        "tiempo_m": 18,
+        "jaulas": 3
+    },
+    {
+        "hotel": "BORDOY ALCUDIA BAY",
+        "tiempo_m": 23,
+        "jaulas": 5
+    },
+    {
+        "hotel": "BORNEO",
+        "tiempo_m": 26,
+        "jaulas": 5
+    },
+    {
+        "hotel": "BP CORAL PLAYA",
+        "tiempo_m": 14,
+        "jaulas": 5
+    },
+    {
+        "hotel": "CABO BLANCO",
+        "tiempo_m": 19,
+        "jaulas": 3
+    },
+    {
+        "hotel": "CALA ANTENA",
+        "tiempo_m": 21,
+        "jaulas": 7
+    },
+    {
+        "hotel": "CALAS DE MCA EDF1 CALAS",
+        "tiempo_m": 17,
+        "jaulas": 9
+    },
+    {
+        "hotel": "CALAS DE MCA EDF2 MIRADOR",
+        "tiempo_m": 23,
+        "jaulas": 7
+    },
+    {
+        "hotel": "CASTELL ROYAL",
+        "tiempo_m": 26,
+        "jaulas": 4
+    },
+    {
+        "hotel": "CLUB HOTEL CALA RATJADA",
+        "tiempo_m": 21,
+        "jaulas": 7
+    },
+    {
+        "hotel": "CLUB PALMANOVA PARK",
+        "tiempo_m": 64,
+        "jaulas": 9
+    },
+    {
+        "hotel": "CORMORAN",
+        "tiempo_m": 28,
+        "jaulas": 4
+    },
+    {
+        "hotel": "CRISTOBAL COLON",
+        "tiempo_m": 32,
+        "jaulas": 5
+    },
+    {
+        "hotel": "DON CAMILO",
+        "tiempo_m": 20,
+        "jaulas": 3
+    },
+    {
+        "hotel": "EDEN ALCUDIA",
+        "tiempo_m": 26,
+        "jaulas": 6
+    },
+    {
+        "hotel": "EDEN PLAYA",
+        "tiempo_m": 36,
+        "jaulas": 11
+    },
+    {
+        "hotel": "ESTRELLA & CORAL",
+        "tiempo_m": 27,
+        "jaulas": 8
+    },
+    {
+        "hotel": "FLORIDA",
+        "tiempo_m": 41,
+        "jaulas": 7
+    },
+    {
+        "hotel": "GRAN FIESTA",
+        "tiempo_m": 33,
+        "jaulas": 12
+    },
+    {
+        "hotel": "ILLOT PARK",
+        "tiempo_m": 17,
+        "jaulas": 6
+    },
+    {
+        "hotel": "ISABELA",
+        "tiempo_m": 17,
+        "jaulas": 5
+    },
+    {
+        "hotel": "JARDIN DEL MAR",
+        "tiempo_m": 30,
+        "jaulas": 6
+    },
+    {
+        "hotel": "KONTIKI",
+        "tiempo_m": 27,
+        "jaulas": 7
+    },
+    {
+        "hotel": "LAGO APTOS.",
+        "tiempo_m": 14,
+        "jaulas": 7
+    },
+    {
+        "hotel": "LAGO PLAYA",
+        "tiempo_m": 13,
+        "jaulas": 3
+    },
+    {
+        "hotel": "LAGUNA",
+        "tiempo_m": 15,
+        "jaulas": 3
+    },
+    {
+        "hotel": "LAGUNA APARTAMENTOS",
+        "tiempo_m": 5,
+        "jaulas": 2
+    },
+    {
+        "hotel": "LIDO PARK",
+        "tiempo_m": 40,
+        "jaulas": 8
+    },
+    {
+        "hotel": "LUX",
+        "tiempo_m": 26,
+        "jaulas": 6
+    },
+    {
+        "hotel": "MAR BLAU",
+        "tiempo_m": 50,
+        "jaulas": 9
+    },
+    {
+        "hotel": "MARENA BEACH",
+        "tiempo_m": 21,
+        "jaulas": 4
+    },
+    {
+        "hotel": "MARIVENT",
+        "tiempo_m": 60,
+        "jaulas": 13
+    },
+    {
+        "hotel": "MARQUES",
+        "tiempo_m": 53,
+        "jaulas": 5
+    },
+    {
+        "hotel": "MARTINIQUE",
+        "tiempo_m": 51,
+        "jaulas": 12
+    },
+    {
+        "hotel": "MCA. RESORT C. EGOS 1 CORFU",
+        "tiempo_m": 40,
+        "jaulas": 8
+    },
+    {
+        "hotel": "MCA. RESORT C. EGOS 2 SKORPIO",
+        "tiempo_m": 31,
+        "jaulas": 6
+    },
+    {
+        "hotel": "MCA. WATERPARK BREEZE EDF2",
+        "tiempo_m": 37,
+        "jaulas": 11
+    },
+    {
+        "hotel": "MCA. WATERPARK SPLASH EDF1",
+        "tiempo_m": 43,
+        "jaulas": 11
+    },
+    {
+        "hotel": "NEGRESCO",
+        "tiempo_m": 12,
+        "jaulas": 4
+    },
+    {
+        "hotel": "ORIENT BEACH",
+        "tiempo_m": 26,
+        "jaulas": 7
+    },
+    {
+        "hotel": "ORQUIDEA PLAYA",
+        "tiempo_m": 12,
+        "jaulas": 3
+    },
+    {
+        "hotel": "PAGUERA PARK",
+        "tiempo_m": 26,
+        "jaulas": 6
+    },
+    {
+        "hotel": "PALMANOVA BEACH APTS.",
+        "tiempo_m": 24,
+        "jaulas": 4
+    },
+    {
+        "hotel": "PALMANOVA SUITES",
+        "tiempo_m": 19,
+        "jaulas": 7
+    },
+    {
+        "hotel": "PERLA",
+        "tiempo_m": 14,
+        "jaulas": 4
+    },
+    {
+        "hotel": "PIL.LARI",
+        "tiempo_m": 24,
+        "jaulas": 6
+    },
+    {
+        "hotel": "RIVIERA PLAYA",
+        "tiempo_m": 13,
+        "jaulas": 3
+    },
+    {
+        "hotel": "ROMANTICA",
+        "tiempo_m": 45,
+        "jaulas": 6
+    },
+    {
+        "hotel": "SEA CLUB EDF 1",
+        "tiempo_m": 27,
+        "jaulas": 11
+    },
+    {
+        "hotel": "SEA CLUB EDF 2",
+        "tiempo_m": 18,
+        "jaulas": 4
+    },
+    {
+        "hotel": "SOUL PALMA",
+        "tiempo_m": 30,
+        "jaulas": 4
+    },
+    {
+        "hotel": "STYLE CALA BLANCA",
+        "tiempo_m": 33,
+        "jaulas": 8
+    },
+    {
+        "hotel": "SUMBA",
+        "tiempo_m": 28,
+        "jaulas": 6
+    },
+    {
+        "hotel": "TENT ARENAL",
+        "tiempo_m": 33,
+        "jaulas": 5
+    },
+    {
+        "hotel": "TENT BAHÍA DE PALMA",
+        "tiempo_m": 40,
+        "jaulas": 7
+    },
+    {
+        "hotel": "TENT CALVIA EDF3",
+        "tiempo_m": 17,
+        "jaulas": 6
+    },
+    {
+        "hotel": "TENT CAPI PLAYA",
+        "tiempo_m": 13,
+        "jaulas": 2
+    },
+    {
+        "hotel": "TENT MOJITO EDF4",
+        "tiempo_m": 18,
+        "jaulas": 3
+    },
+    {
+        "hotel": "TENT PALMANOVA",
+        "tiempo_m": 18,
+        "jaulas": 6
+    },
+    {
+        "hotel": "TENT PLAYA DE PALMA",
+        "tiempo_m": 31,
+        "jaulas": 4
+    },
+    {
+        "hotel": "TORRENOVA",
+        "tiempo_m": 49,
+        "jaulas": 8
+    },
+    {
+        "hotel": "TROPICAL",
+        "tiempo_m": 42,
+        "jaulas": 8
+    },
+    {
+        "hotel": "VERA BEACH",
+        "tiempo_m": 25,
+        "jaulas": 5
+    },
+    {
+        "hotel": "VILLA MARQUESA",
+        "tiempo_m": 7,
+        "jaulas": 1
+    },
+    {
+        "hotel": "WHALA BEACH",
+        "tiempo_m": 61,
+        "jaulas": 10
+    },
+    {
+        "hotel": "WHALA FUN",
+        "tiempo_m": 26,
+        "jaulas": 5
+    }
+]

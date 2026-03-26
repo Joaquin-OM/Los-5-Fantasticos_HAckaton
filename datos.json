@@ -1,0 +1,75 @@
+{
+  "vehiculos": [
+    {
+      "matricula": "9450HPD",
+      "marca": "IVECO",
+      "modelo": "ML120E22",
+      "bastidor": "ZCFA1EG1402596742",
+      "fecha_primera_matriculacion": "07-03-2013",
+      "especificaciones_tecnicas": {
+        "mma_kg": 12000,
+        "masa_en_vacio_kg": 6700,
+        "cilindrada_cm3": 5880,
+        "potencia_fiscal_cvf": 29.92,
+        "combustible": "DIESEL",
+        "num_plazas": 3,
+        "clasificacion": "21 20 CAMION 3500<MMA<=12000 KG CAJA CERRADA"
+      },
+      "estado_itv": {
+        "proxima_inspeccion": "11-05-2026",
+        "ultimo_kilometraje_registrado": 527958,
+        "resultado_ultima_inspeccion": "FAVORABLE"
+      }
+    },
+    {
+      "matricula": "0958MPN",
+      "marca": "IVECO",
+      "modelo": "50C/35",
+      "bastidor": "ZCFC635C80D754488",
+      "fecha_primera_matriculacion": "05-04-2024",
+      "especificaciones_tecnicas": {
+        "mma_kg": 3500,
+        "masa_en_vacio_kg": 3100,
+        "cilindrada_cm3": 2998,
+        "potencia_fiscal_cvf": 16.97,
+        "combustible": "DIESEL",
+        "num_plazas": 3
+      },
+      "estado_itv": {
+        "proxima_inspeccion": "05-04-2026"
+      }
+    }
+  ],
+  "tabla_servicios_hoteles": [
+    {
+      "hotel": "ALMA BEACH",
+      "tiempo_minutos": 30,
+      "jaulas": 5
+    },
+    {
+      "hotel": "AMARAC HOTEL",
+      "tiempo_minutos": 13,
+      "jaulas": 3
+    },
+    {
+      "hotel": "AMARAC SUITES",
+      "tiempo_minutos": 12,
+      "jaulas": 2
+    },
+    {
+      "hotel": "APARTAMENTOS CALA D'OR",
+      "tiempo_minutos": 19,
+      "jaulas": 2
+    },
+    {
+      "hotel": "APARTHOTEL ELISA",
+      "tiempo_minutos": 11,
+      "jaulas": 3
+    },
+    {
+      "hotel": "AQUAMARIN",
+      "tiempo_minutos": 20,
+      "jaulas": 5
+    }
+  ]
+}
