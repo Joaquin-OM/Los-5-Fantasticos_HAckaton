@@ -316,15 +316,70 @@
                                     <h3 style="color: #16a34a; justify-content: center; margin-bottom: 0.5rem;">
                                         <i class="ph-fill ph-check-circle"></i> ¡Código Detectado!
                                     </h3>
-                                    <p class="text-muted text-sm" style="margin: 0;">ID de la orden:</p>
+                                    <p class="text-muted text-sm" style="margin: 0;">Número de Jaula / QR:</p>
                                     <div class="qr-data" id="qr-result-text" style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin: 1rem 0; word-break: break-all; background: rgba(255,255,255,0.7); padding: 0.75rem; border-radius: 4px;">---</div>
                                     
-                                    <button class="btn btn-primary full-width mb-2" onclick="confirmarRecogidaQR()">
-                                        <i class="ph-fill ph-truck"></i> Confirmar Recogida
-                                    </button>
-                                    <button class="btn btn-secondary full-width" onclick="reiniciarEscanerQR()">
+                                    <div class="form-group text-left" style="margin-bottom: 1rem;">
+                                        <label class="text-xs fw-600">Seleccionar Hotel (Origen/Destino)</label>
+                                        <select id="qr-hotel-select" class="full-width" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; background: #fff;" required>
+                                            <option value="Hotel Ritz">Hotel Ritz</option>
+                                            <option value="Hotel Hilton">Hotel Hilton</option>
+                                            <option value="Four Seasons">Four Seasons</option>
+                                            <option value="Marriott">Marriott</option>
+                                            <option value="Meliá Palma">Meliá Palma</option>
+                                            <option value="Iberostar">Iberostar</option>
+                                            <option value="Riu Palace">Riu Palace</option>
+                                        </select>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                        <button class="btn btn-primary full-width m-0" onclick="registrarJaulaQR('enviada')">
+                                            <i class="ph-fill ph-arrow-down" style="color:#000;"></i> Marcar Enviada
+                                        </button>
+                                        <button class="btn full-width m-0" style="background-color: #3b82f6; color: #fff; border: none;" onclick="registrarJaulaQR('retirada')">
+                                            <i class="ph-fill ph-arrow-up" style="color:#fff;"></i> Marcar Retirada
+                                        </button>
+                                    </div>
+                                    
+                                    <button class="btn btn-secondary full-width mt-2" onclick="reiniciarEscanerQR()">
                                         <i class="ph-fill ph-arrows-clockwise"></i> Volver a escanear
                                     </button>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                                <!-- Tabla Jaulas Enviadas -->
+                                <div class="card simple-panel">
+                                    <h3><i class="ph-fill ph-arrow-down text-success"></i> Jaulas Enviadas (Dejadas)</h3>
+                                    <div class="table-responsive mt-4">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nº JAULA</th>
+                                                    <th>HOTEL DESTINO</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="table-jaulas-enviadas">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <!-- Tabla Jaulas Retiradas -->
+                                <div class="card simple-panel">
+                                    <h3><i class="ph-fill ph-arrow-up text-primary"></i> Jaulas Retiradas (Recogidas)</h3>
+                                    <div class="table-responsive mt-4">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nº JAULA</th>
+                                                    <th>HOTEL ORIGEN</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="table-jaulas-retiradas">
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
