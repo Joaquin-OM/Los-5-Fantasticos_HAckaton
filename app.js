@@ -11,7 +11,19 @@ const defaultState = {
     ],
     tickets: [
         { id: '#TK-9021', ref: '#ENV-402', desc: 'Agregar 2 carros extras de toallas piscina', date: 'Hoy, 09:30', status: 'revision' }
-    ]
+    ],
+    jaulas: {
+        enviadas: [
+            { id: 'JLA-912A', hotel: 'Hotel Ritz', driver: 'Carlos R.', date: '10:15' },
+            { id: 'JLA-913B', hotel: 'Hotel Ritz', driver: 'Carlos R.', date: '10:16' },
+            { id: 'JLA-880C', hotel: 'Meliá Palma', driver: 'Carlos R.', date: '09:20' }
+        ],
+        retiradas: [
+            { id: 'JLA-742X', hotel: 'Hotel Ritz', driver: 'Carlos R.', date: '10:20' },
+            { id: 'JLA-743Y', hotel: 'Hotel Ritz', driver: 'Carlos R.', date: '10:21' },
+            { id: 'JLA-744Z', hotel: 'Meliá Palma', driver: 'Carlos R.', date: '09:30' }
+        ]
+    }
 };
 
 // Cargar estado persistivo
@@ -21,6 +33,10 @@ const loadState = () => {
 };
 
 let appState = loadState();
+if(!appState.jaulas || (appState.jaulas.enviadas.length === 0 && appState.jaulas.retiradas.length === 0)) { 
+    appState.jaulas = JSON.parse(JSON.stringify(defaultState.jaulas)); 
+    saveState();
+}
 
 const saveState = () => {
     localStorage.setItem('polarier_data', JSON.stringify(appState));
@@ -542,6 +558,27 @@ async function renderDriverView() {
             vehicleInfo.innerHTML = `<div class="text-center w-100 py-2"><i class="ph ph-warning text-danger"></i> Datos no disponibles</div>`;
         }
     }
+
+    // 5. Jaulas Escaneadas
+    const tbodyEnviadas = document.getElementById('table-jaulas-enviadas');
+    if (tbodyEnviadas) {
+        const env = appState.jaulas.enviadas.filter(j => j.driver === currentUser.name) || [];
+        if (env.length === 0) {
+            tbodyEnviadas.innerHTML = `<tr><td colspan="2" class="text-center text-muted py-3">Ninguna enviada</td></tr>`;
+        } else {
+            tbodyEnviadas.innerHTML = env.map(j => `<tr><td class="fw-500">${j.id}</td><td>${j.hotel}</td></tr>`).join('');
+        }
+    }
+
+    const tbodyRetiradas = document.getElementById('table-jaulas-retiradas');
+    if (tbodyRetiradas) {
+        const ret = appState.jaulas.retiradas.filter(j => j.driver === currentUser.name) || [];
+        if (ret.length === 0) {
+            tbodyRetiradas.innerHTML = `<tr><td colspan="2" class="text-center text-muted py-3">Ninguna retirada</td></tr>`;
+        } else {
+            tbodyRetiradas.innerHTML = ret.map(j => `<tr><td class="fw-500">${j.id}</td><td>${j.hotel}</td></tr>`).join('');
+        }
+    }
 }
 
 document.getElementById('driver-incident-form')?.addEventListener('submit', (e) => {
@@ -869,8 +906,20 @@ window.reiniciarEscanerQR = function() {
     }
 }
 
-window.confirmarRecogidaQR = function() {
-    const codigo = document.getElementById('qr-result-text').innerText;
-    showToast("Bolsa/Orden registrada (QR: " + codigo + ")", "success");
+window.registrarJaulaQR = function(tipo) {
+    const jaulaId = document.getElementById('qr-result-text').innerText;
+    const hotel = document.getElementById('qr-hotel-select').value;
+    
+    appState.jaulas[tipo].unshift({
+        id: jaulaId,
+        hotel: hotel,
+        driver: currentUser.name,
+        date: new Date().toLocaleTimeString()
+    });
+    
+    saveState();
+    renderDriverView();
+    
+    showToast(`Jaula ${jaulaId} marcada como ${tipo === 'enviada' ? 'Enviada' : 'Retirada'} en ${hotel}`, "success");
     reiniciarEscanerQR();
 }
