@@ -1,10 +1,10 @@
 // Base simulada estática
 const defaultState = {
     shipments: [
-        { id: '#ENV-401', hotel: 'Hotel Ritz', driver: 'Carlos R.', status: 'preparado', time: '14:00 - 16:00', dirtyCarts: null, type: 'Limpios + Recogida' },
-        { id: '#ENV-402', hotel: 'Hotel Hilton', driver: 'Ana G.', status: 'entregado', time: '08:00 - 10:00', dirtyCarts: 4, type: 'Solo Entrega' },
-        { id: '#ENV-403', hotel: 'Four Seasons', driver: 'Carlos R.', status: 'en_camino', time: '16:00 - 18:00', dirtyCarts: null, type: 'Recogida Ropa Sucia' },
-        { id: '#ENV-404', hotel: 'Marriott', driver: 'Ana G.', status: 'preparado', time: 'Mañana', dirtyCarts: null, type: 'Limpios + Recogida' }
+        { id: '#ENV-401', hotel: 'Hotel Ritz', driver: 'Carlos R.', status: 'preparado', time: '14:00 - 16:00', dirtyCarts: null, type: 'Limpios + Recogida', signature: null },
+        { id: '#ENV-402', hotel: 'Hotel Hilton', driver: 'Ana G.', status: 'entregado', time: '08:00 - 10:00', dirtyCarts: 4, type: 'Solo Entrega', signature: null },
+        { id: '#ENV-403', hotel: 'Four Seasons', driver: 'Carlos R.', status: 'en_camino', time: '16:00 - 18:00', dirtyCarts: null, type: 'Recogida Ropa Sucia', signature: null },
+        { id: '#ENV-404', hotel: 'Marriott', driver: 'Ana G.', status: 'preparado', time: 'Mañana', dirtyCarts: null, type: 'Limpios + Recogida', signature: null }
     ],
     tickets: [
         { id: '#TK-9021', ref: '#ENV-402', desc: 'Agregar 2 carros extras de toallas piscina', date: 'Hoy, 09:30', status: 'revision' }
@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         switchView('dashboard-container');
         initDashboardView();
     }
+    initSignaturePad(); // Inicializar el canvas de firma
 });
 
 // LOGIN
@@ -187,7 +188,9 @@ function renderClientView() {
     }
 
     const sel = document.getElementById('ticket-ref-envio');
-    sel.innerHTML = myShipments.map(s => `<option value="${s.id}">${s.id} - ${s.type} (${statusMap[s.status].label})</option>`).join('');
+    if(sel) {
+        sel.innerHTML = myShipments.map(s => `<option value="${s.id}">${s.id} - ${s.type} (${statusMap[s.status].label})</option>`).join('');
+    }
 }
 
 document.getElementById('new-shipment-form')?.addEventListener('submit', (e) => {
@@ -195,7 +198,7 @@ document.getElementById('new-shipment-form')?.addEventListener('submit', (e) => 
     const time = document.getElementById('new-shipment-time').value;
     const newId = '#ENV-' + Math.floor(Math.random() * 900 + 500);
     appState.shipments.unshift({
-        id: newId, hotel: currentUser.hotel, driver: 'Asignando...', status: 'preparado', time: time, dirtyCarts: null, type: 'Recogida Solicitada'
+        id: newId, hotel: currentUser.hotel, driver: 'Asignando...', status: 'preparado', time: time, dirtyCarts: null, type: 'Recogida Solicitada', signature: null
     });
     saveState();
     showToast(`Recolección solicitada (${newId})`);
@@ -275,20 +278,93 @@ function renderDriverView() {
     `}).join('');
 }
 
+// FIRMA DIGITAL LOGIC
+let signatureCanvas, signatureCtx;
+let isDrawing = false;
+
+function initSignaturePad() {
+    signatureCanvas = document.getElementById('signature-pad');
+    if (!signatureCanvas) return;
+    signatureCtx = signatureCanvas.getContext('2d');
+
+    // Mouse Events
+    signatureCanvas.addEventListener('mousedown', startDrawing);
+    signatureCanvas.addEventListener('mousemove', draw);
+    signatureCanvas.addEventListener('mouseup', stopDrawing);
+    signatureCanvas.addEventListener('mouseout', stopDrawing);
+
+    // Touch Events (Móviles)
+    signatureCanvas.addEventListener('touchstart', startDrawing, { passive: false });
+    signatureCanvas.addEventListener('touchmove', draw, { passive: false });
+    signatureCanvas.addEventListener('touchend', stopDrawing);
+
+    document.getElementById('clear-signature')?.addEventListener('click', clearSignaturePad);
+}
+
+function getPointerPos(e) {
+    const rect = signatureCanvas.getBoundingClientRect();
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    // Escalar la posición por si el canvas está redimensionado por CSS
+    const scaleX = signatureCanvas.width / rect.width;
+    const scaleY = signatureCanvas.height / rect.height;
+    
+    return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+    };
+}
+
+function startDrawing(e) {
+    e.preventDefault(); // Prevenir scroll en móviles
+    isDrawing = true;
+    const pos = getPointerPos(e);
+    signatureCtx.beginPath();
+    signatureCtx.moveTo(pos.x, pos.y);
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const pos = getPointerPos(e);
+    signatureCtx.lineTo(pos.x, pos.y);
+    signatureCtx.lineWidth = 2;
+    signatureCtx.lineCap = 'round';
+    signatureCtx.strokeStyle = '#000';
+    signatureCtx.stroke();
+}
+
+function stopDrawing() {
+    isDrawing = false;
+    signatureCtx.beginPath();
+}
+
+function clearSignaturePad() {
+    if (signatureCtx) {
+        signatureCtx.clearRect(0, 0, signatureCanvas.width, signatureCanvas.height);
+    }
+}
+
+
 window.openCompleteShipment = function(id, hotel) {
     currentShipmentToCompleteId = id;
     document.getElementById('complete-shipment-hotel').textContent = hotel;
+    clearSignaturePad(); // Limpiar la firma anterior al abrir el modal
     document.getElementById('modal-complete-shipment').classList.add('show');
 }
 
 document.getElementById('form-complete-shipment')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const carts = document.getElementById('dirty-carts').value;
+    const signatureData = signatureCanvas.toDataURL(); // Extraer imagen de la firma
+    
+    // Validar firma vacía verificando los píxeles (opcional, en este caso solo guardamos la imagen generada)
     
     const shipment = appState.shipments.find(s => s.id === currentShipmentToCompleteId);
     if(shipment) {
         shipment.status = 'entregado';
         shipment.dirtyCarts = carts;
+        shipment.signature = signatureData; // Guardar firma en el estado del envío
         saveState();
         showToast(`Envío completado`);
         renderDriverView();
@@ -317,7 +393,11 @@ function renderAdminView() {
             <td class="text-muted">${s.driver}</td>
             <td><span class="badge ${statusMap[s.status].class}">${statusMap[s.status].label}</span></td>
             <td>${s.time}</td>
-            <td class="text-sm">${s.type} ${s.dirtyCarts !== null ? `<br><span class="text-xs text-success">(Retornó ${s.dirtyCarts} carros)</span>` : ''}</td>
+            <td class="text-sm">
+                ${s.type} 
+                ${s.dirtyCarts !== null ? `<br><span class="text-xs text-success">(Retornó ${s.dirtyCarts} carros)</span>` : ''}
+                ${s.signature ? `<br><span class="text-xs text-primary fw-500"><i class="ph-fill ph-pen-nib"></i> Firmado</span>` : ''}
+            </td>
         </tr>
     `).join('');
 }
