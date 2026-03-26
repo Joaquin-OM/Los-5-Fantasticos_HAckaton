@@ -87,13 +87,16 @@ function initDashboardView() {
     const sidebar = document.getElementById('sidebar-links');
     if (currentUser.role === 'client') {
         sidebar.innerHTML = `
-            <li><a href="#" class="active"><i class="ph-fill ph-squares-four"></i> <span>Panel ${currentUser.hotel}</span></a></li>
-            <li><a href="#"><i class="ph ph-clock-counter-clockwise"></i> <span>Historial</span></a></li>
-            <li><a href="#"><i class="ph ph-lifebuoy"></i> <span>Soporte</span></a></li>
+            <li><a href="#" class="nav-item active" onclick="switchClientView('client-make-order', this)"><i class="ph ph-plus-circle"></i> <span>Hacer un pedido</span></a></li>
+            <li><a href="#" class="nav-item" onclick="switchClientView('client-monitor-order', this)"><i class="ph ph-eye"></i> <span>Monitorear pedido</span></a></li>
+            <li><a href="#" class="nav-item" onclick="switchClientView('client-incidents', this)"><i class="ph ph-warning"></i> <span>Incidencias</span></a></li>
+            <li><a href="#" class="nav-item" onclick="switchClientView('client-order-history', this)"><i class="ph ph-clock-counter-clockwise"></i> <span>Historial de pedidos</span></a></li>
+            <li><a href="#" class="nav-item" onclick="switchClientView('client-support', this)"><i class="ph ph-lifebuoy"></i> <span>Soporte</span></a></li>
         `;
-        document.getElementById('current-page-title').textContent = `Portal del Hotel - ${currentUser.hotel}`;
+        document.getElementById('current-page-title').textContent = `Hacer un pedido`;
         switchDashboardRole('client-dashboard');
         renderClientView();
+        switchClientView('client-make-order', sidebar.querySelector('a'));
     } 
     else if (currentUser.role === 'driver') {
         sidebar.innerHTML = `
@@ -121,15 +124,36 @@ function switchDashboardRole(id) {
     document.getElementById(id).classList.add('active');
 }
 
+window.switchClientView = function(viewId, element) {
+    document.querySelectorAll('#client-dashboard .sub-view').forEach(v => v.classList.remove('active'));
+    let target = document.getElementById(viewId);
+    if(target) target.classList.add('active');
+    
+    if (element) {
+        document.querySelectorAll('#sidebar-links a').forEach(a => a.classList.remove('active'));
+        element.classList.add('active');
+        
+        const titleMap = {
+            'client-make-order': 'Hacer un pedido',
+            'client-monitor-order': 'Monitorear pedido',
+            'client-incidents': 'Incidencias',
+            'client-order-history': 'Historial de pedidos',
+            'client-support': 'Soporte'
+        };
+        document.getElementById('current-page-title').textContent = titleMap[viewId] || `Portal del Hotel`;
+    }
+}
+
 // CLIENT ROLE (HOTEL) LOGIC
 function renderClientView() {
     const myShipments = appState.shipments.filter(s => s.hotel === currentUser.hotel);
     const activeShipment = myShipments.find(s => s.status !== 'entregado') || myShipments[0]; 
     
+    // 1. Monitorear pedido
     const pbContainer = document.getElementById('client-progress-bar');
     const detContainer = document.getElementById('client-shipment-details');
     
-    if (activeShipment) {
+    if (activeShipment && activeShipment.status !== 'entregado') { 
         let pct = activeShipment.status === 'preparado' ? 0 : activeShipment.status === 'en_camino' ? 50 : 100;
         
         pbContainer.innerHTML = `
@@ -164,46 +188,91 @@ function renderClientView() {
                     <p class="fw-500">${activeShipment.time}</p>
                 </div>
             </div>
-            ${activeShipment.dirtyCarts !== null ? `<div class="mt-4"><p class="text-sm text-success fw-500"> Entregado - Se recibieron ${activeShipment.dirtyCarts} carros de ropa sucia.</p></div>` : ''}
         `;
     } else {
         pbContainer.innerHTML = '';
-        detContainer.innerHTML = `<div class="empty-state"><p>No tienes envíos recientes</p></div>`;
+        detContainer.innerHTML = `<div class="empty-state"><p>No tienes pedidos en curso actualmente</p></div>`;
     }
 
+    // 2. Historial de pedidos
+    const historyBody = document.getElementById('client-history-body');
+    if(historyBody) {
+        if(myShipments.length === 0) {
+            historyBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Sin pedidos previos.</td></tr>`;
+        } else {
+            historyBody.innerHTML = myShipments.map(s => `
+                <tr>
+                    <td class="fw-500">${s.id}</td>
+                    <td>${s.type}</td>
+                    <td>${s.time}</td>
+                    <td><span class="badge ${statusMap[s.status]?.class || 'ghost'}">${statusMap[s.status]?.label || s.status}</span></td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    // 3. Incidencias y Soporte
     const myTickets = appState.tickets.filter(t => t.hotel === null || t.hotel === currentUser.hotel); 
-    const tbody = document.getElementById('client-tickets-body');
-    if (myTickets.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No has emitido tickets recientemente.</td></tr>`;
-    } else {
-        tbody.innerHTML = myTickets.map(t => `
-            <tr>
-                <td class="fw-500">${t.id}</td>
-                <td><span class="badge ghost">${t.ref}</span></td>
-                <td>${t.desc}</td>
-                <td>${t.date}</td>
-                <td><span class="badge ${t.status === 'revision' ? 'in-progress' : 'completed'}">${t.status === 'revision' ? 'Bajo Revisión' : 'Cerrado'}</span></td>
-            </tr>
-        `).join('');
+    const supportTickets = myTickets.filter(t => t.isIncident !== true);
+    const incidentTickets = myTickets.filter(t => t.isIncident === true);
+
+    const supportBody = document.getElementById('client-tickets-body');
+    if (supportBody) {
+        if (supportTickets.length === 0) {
+            supportBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No hay tickets de soporte.</td></tr>`;
+        } else {
+            supportBody.innerHTML = supportTickets.map(t => `
+                <tr>
+                    <td class="fw-500">${t.id}</td>
+                    <td><span class="badge ghost">${t.ref}</span></td>
+                    <td>${t.desc}</td>
+                    <td>${t.date}</td>
+                    <td><span class="badge ${t.status === 'revision' ? 'in-progress' : 'completed'}">${t.status === 'revision' ? 'Bajo Revisión' : 'Cerrado'}</span></td>
+                </tr>
+            `).join('');
+        }
     }
 
-    const sel = document.getElementById('ticket-ref-envio');
-    if(sel) {
-        sel.innerHTML = myShipments.map(s => `<option value="${s.id}">${s.id} - ${s.type} (${statusMap[s.status].label})</option>`).join('');
+    const incidentsBody = document.getElementById('client-incidents-body');
+    if (incidentsBody) {
+        if (incidentTickets.length === 0) {
+            incidentsBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No has reportado incidencias.</td></tr>`;
+        } else {
+            incidentsBody.innerHTML = incidentTickets.map(t => `
+                <tr>
+                    <td class="fw-500">${t.id}</td>
+                    <td><span class="badge ghost">${t.ref}</span></td>
+                    <td>${t.desc}</td>
+                    <td>${t.date}</td>
+                    <td><span class="badge ${t.status === 'revision' ? 'in-progress' : 'completed'}">${t.status === 'revision' ? 'En Revisión' : 'Resuelto'}</span></td>
+                </tr>
+            `).join('');
+        }
     }
+
+    // Poblamos los selects
+    const refEnvioSupport = document.getElementById('ticket-ref-envio');
+    const refEnvioIncident = document.getElementById('incident-ref-envio');
+    const optionsHTML = myShipments.map(s => `<option value="${s.id}">${s.id} - ${s.type} (${statusMap[s.status]?.label || s.status})</option>`).join('');
+    if(refEnvioSupport) refEnvioSupport.innerHTML = optionsHTML;
+    if(refEnvioIncident) refEnvioIncident.innerHTML = optionsHTML;
 }
 
 document.getElementById('new-shipment-form')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const time = document.getElementById('new-shipment-time').value;
+    const type = document.getElementById('new-shipment-type').value;
     const newId = '#ENV-' + Math.floor(Math.random() * 900 + 500);
     appState.shipments.unshift({
-        id: newId, hotel: currentUser.hotel, driver: 'Asignando...', status: 'preparado', time: time, dirtyCarts: null, type: 'Recogida Solicitada', signature: null
+        id: newId, hotel: currentUser.hotel, driver: 'Asignando...', status: 'preparado', time: time, dirtyCarts: null, type: type, signature: null
     });
     saveState();
-    showToast(`Recolección solicitada (${newId})`);
+    showToast(`Pedido confirmado (${newId})`);
     renderClientView();
     e.target.reset();
+    
+    const monitorBtn = document.querySelector('#sidebar-links a[onclick*="client-monitor-order"]');
+    if(monitorBtn) switchClientView('client-monitor-order', monitorBtn);
 });
 
 document.getElementById('btn-new-ticket')?.addEventListener('click', () => {
@@ -217,12 +286,29 @@ document.getElementById('form-create-ticket')?.addEventListener('submit', (e) =>
     const newId = '#TK-' + Math.floor(Math.random() * 9000 + 1000);
     
     appState.tickets.unshift({
-        id: newId, ref: ref, hotel: currentUser.hotel, desc: desc, date: 'Justo Ahora', status: 'revision'
+        id: newId, ref: ref, hotel: currentUser.hotel, desc: desc, date: 'Justo Ahora', status: 'revision', isIncident: false
     });
     saveState();
     
     document.getElementById('modal-ticket').classList.remove('show');
     showToast('Ticket generado');
+    renderClientView();
+    e.target.reset();
+});
+
+document.getElementById('form-create-incident')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const ref = document.getElementById('incident-ref-envio').value;
+    const desc = document.getElementById('incident-desc').value;
+    const newId = '#INC-' + Math.floor(Math.random() * 9000 + 1000);
+    
+    appState.tickets.unshift({
+        id: newId, ref: ref, hotel: currentUser.hotel, desc: desc, date: 'Justo Ahora', status: 'revision', isIncident: true
+    });
+    saveState();
+    
+    document.getElementById('modal-incident').classList.remove('show');
+    showToast('Incidencia reportada');
     renderClientView();
     e.target.reset();
 });

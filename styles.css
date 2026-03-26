@@ -165,9 +165,9 @@ input:focus, select:focus, textarea:focus {
 .header-user { display: flex; align-items: center; gap: 1rem; }
 .avatar { width: 36px; height: 36px; border-radius: 4px; background-color: var(--primary-light); color: var(--text-main); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; border: 1px solid var(--primary); }
 
-/* Vistas de Rol */
-.role-view { display: none; }
-.role-view.active { display: block; animation: fadeIn 0.3s ease forwards; }
+/* Vistas de Rol y Subvistas */
+.role-view, .sub-view { display: none; }
+.role-view.active, .sub-view.active { display: block; animation: fadeIn 0.3s ease forwards; }
 
 .grid-layout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
 .col-span-2 { grid-column: span 2; }
