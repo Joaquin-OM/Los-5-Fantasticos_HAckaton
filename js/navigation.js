@@ -1,4 +1,4 @@
-﻿// LOGIC: SWITCH VIEW
+// LOGIC: SWITCH VIEW
 function switchView(viewId) {
     views.forEach(v => v.classList.remove('active-view'));
     document.getElementById(viewId).classList.add('active-view');
@@ -13,9 +13,8 @@ function initDashboardView() {
         sidebar.innerHTML = `
             <li><a href="#" class="nav-item active" onclick="switchClientView('client-make-order', this)"><i class="ph ph-plus-circle"></i> <span>Hacer un pedido</span></a></li>
             <li><a href="#" class="nav-item" onclick="switchClientView('client-monitor-order', this)"><i class="ph ph-eye"></i> <span>Monitorear pedido</span></a></li>
-            <li><a href="#" class="nav-item" onclick="switchClientView('client-incidents', this)"><i class="ph ph-warning"></i> <span>Incidencias</span></a></li>
+            <li><a href="#" class="nav-item" onclick="switchClientView('client-incidents', this)"><i class="ph ph-warning-circle"></i> <span>Incidencias</span></a></li>
             <li><a href="#" class="nav-item" onclick="switchClientView('client-order-history', this)"><i class="ph ph-clock-counter-clockwise"></i> <span>Historial de pedidos</span></a></li>
-            <li><a href="#" class="nav-item" onclick="switchClientView('client-support', this)"><i class="ph ph-lifebuoy"></i> <span>Soporte</span></a></li>
         `;
         document.getElementById('current-page-title').textContent = `Hacer un pedido`;
         switchDashboardRole('client-dashboard');
@@ -67,8 +66,7 @@ window.switchClientView = function(viewId, element) {
             'client-make-order': 'Hacer un pedido',
             'client-monitor-order': 'Monitorear pedido',
             'client-incidents': 'Incidencias',
-            'client-order-history': 'Historial de pedidos',
-            'client-support': 'Soporte'
+            'client-order-history': 'Historial de pedidos'
         };
         document.getElementById('current-page-title').textContent = titleMap[viewId] || `Portal del Hotel`;
     }

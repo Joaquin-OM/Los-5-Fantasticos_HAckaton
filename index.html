@@ -128,20 +128,21 @@
                             </div>
                         </div>
 
-                        <!-- Incidencias -->
+                        <!-- Incidencias y Soporte -->
                         <div id="client-incidents" class="sub-view">
                             <div class="card simple-panel">
                                 <div class="flex-between mb-4">
-                                    <h3><i class="ph-fill ph-warning text-danger"></i> Reporte de Incidencias</h3>
+                                    <h3><i class="ph-fill ph-warning-circle text-primary"></i> Centro de Soporte e Incidencias</h3>
                                     <button class="btn btn-secondary btn-sm" id="btn-new-incident" onclick="document.getElementById('modal-incident').classList.add('show')">
-                                        Reportar Incidencia
+                                        Nueva Incidencia / Ticket
                                     </button>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="data-table">
                                         <thead>
                                             <tr>
-                                                <th>ID INCIDENCIA</th>
+                                                <th>ID TICKET</th>
+                                                <th>TIPO</th>
                                                 <th>REFERENCIA</th>
                                                 <th>DESCRIPCIÓN</th>
                                                 <th>FECHA</th>
@@ -170,33 +171,6 @@
                                             </tr>
                                         </thead>
                                         <tbody id="client-history-body">
-                                            </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Soporte -->
-                        <div id="client-support" class="sub-view">
-                            <div class="card simple-panel">
-                                <div class="flex-between mb-4">
-                                    <h3><i class="ph-fill ph-lifebuoy text-primary"></i> Soporte Técnico</h3>
-                                    <button class="btn btn-secondary btn-sm" id="btn-new-ticket">
-                                        Nuevo Ticket
-                                    </button>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="data-table">
-                                        <thead>
-                                            <tr>
-                                                <th>ID TICKET</th>
-                                                <th>REFERENCIA</th>
-                                                <th>DESCRIPCIÓN</th>
-                                                <th>FECHA</th>
-                                                <th>ESTADO</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="client-tickets-body">
                                             </tbody>
                                     </table>
                                 </div>
@@ -550,26 +524,6 @@
             </div>
         </div>
 
-        <div id="modal-ticket" class="modal">
-            <div class="modal-content simple-panel fade-in-up">
-                <span class="close-modal"><i class="ph ph-x"></i></span>
-                <h3>Nuevo Ticket de Cambio</h3>
-                <p class="text-muted text-sm mb-4">El ticket llegará a la central de Polarier.</p>
-                <form id="form-create-ticket">
-                    <div class="form-group">
-                        <label>Envío de Referencia</label>
-                        <select id="ticket-ref-envio" required>
-                            </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Detalle la modificación o incidencia</label>
-                        <textarea id="ticket-desc" rows="4" required
-                            placeholder="Ej. Por favor agregar 2 carros extras de toallas de piscina al envío..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary full-width">Emitir Ticket</button>
-                </form>
-            </div>
-        </div>
 
         <div id="modal-complete-shipment" class="modal">
             <div class="modal-content simple-panel fade-in-up" style="max-width: 900px;">

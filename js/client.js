@@ -68,50 +68,30 @@ function renderClientView() {
         }
     }
 
-    // 3. Incidencias y Soporte
+    // 3. Incidencias y Soporte (Unificados)
     const myTickets = appState.tickets.filter(t => t.hotel === null || t.hotel === currentUser.hotel); 
-    const supportTickets = myTickets.filter(t => t.isIncident !== true);
-    const incidentTickets = myTickets.filter(t => t.isIncident === true);
-
-    const supportBody = document.getElementById('client-tickets-body');
-    if (supportBody) {
-        if (supportTickets.length === 0) {
-            supportBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No hay tickets de soporte.</td></tr>`;
-        } else {
-            supportBody.innerHTML = supportTickets.map(t => `
-                <tr>
-                    <td class="fw-500">${t.id}</td>
-                    <td><span class="badge ghost">${t.ref}</span></td>
-                    <td>${t.desc}</td>
-                    <td>${t.date}</td>
-                    <td><span class="badge ${t.status === 'revision' ? 'in-progress' : 'completed'}">${t.status === 'revision' ? 'Bajo Revisión' : 'Cerrado'}</span></td>
-                </tr>
-            `).join('');
-        }
-    }
-
     const incidentsBody = document.getElementById('client-incidents-body');
+    
     if (incidentsBody) {
-        if (incidentTickets.length === 0) {
-            incidentsBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No has reportado incidencias.</td></tr>`;
+        if (myTickets.length === 0) {
+            incidentsBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No hay tickets ni incidencias registradas.</td></tr>`;
         } else {
-            incidentsBody.innerHTML = incidentTickets.map(t => `
+            incidentsBody.innerHTML = myTickets.map(t => `
                 <tr>
                     <td class="fw-500">${t.id}</td>
+                    <td><span class="badge ghost">${t.isIncident ? 'Incidencia' : 'Soporte'}</span></td>
                     <td><span class="badge ghost">${t.ref}</span></td>
                     <td>${t.desc}</td>
                     <td>${t.date}</td>
-                    <td><span class="badge ${t.status === 'revision' ? 'in-progress' : 'completed'}">${t.status === 'revision' ? 'En Revisión' : 'Resuelto'}</span></td>
+                    <td><span class="badge ${t.status === 'revision' ? 'in-progress' : 'completed'}">${t.status === 'revision' ? 'Abierto' : 'Resuelto'}</span></td>
                 </tr>
             `).join('');
         }
     }
 
-    // Poblamos los selects
-    const refEnvioSupport = document.getElementById('ticket-ref-envio');
+    // Poblamos el select
     const refEnvioIncident = document.getElementById('incident-ref-envio');
     const optionsHTML = myShipments.map(s => `<option value="${s.id}">${s.id} - ${s.type} (${statusMap[s.status]?.label || s.status})</option>`).join('');
-    if(refEnvioSupport) refEnvioSupport.innerHTML = optionsHTML;
     if(refEnvioIncident) refEnvioIncident.innerHTML = optionsHTML;
 }
 
@@ -132,26 +112,6 @@ document.getElementById('new-shipment-form')?.addEventListener('submit', (e) => 
     if(monitorBtn) switchClientView('client-monitor-order', monitorBtn);
 });
 
-document.getElementById('btn-new-ticket')?.addEventListener('click', () => {
-    document.getElementById('modal-ticket').classList.add('show');
-});
-
-document.getElementById('form-create-ticket')?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const ref = document.getElementById('ticket-ref-envio').value;
-    const desc = document.getElementById('ticket-desc').value;
-    const newId = '#TK-' + Math.floor(Math.random() * 9000 + 1000);
-    
-    appState.tickets.unshift({
-        id: newId, ref: ref, hotel: currentUser.hotel, desc: desc, date: 'Justo Ahora', status: 'revision', isIncident: false
-    });
-    saveState();
-    
-    document.getElementById('modal-ticket').classList.remove('show');
-    showToast('Ticket generado');
-    renderClientView();
-    e.target.reset();
-});
 
 document.getElementById('form-create-incident')?.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -165,7 +125,7 @@ document.getElementById('form-create-incident')?.addEventListener('submit', (e) 
     saveState();
     
     document.getElementById('modal-incident').classList.remove('show');
-    showToast('Incidencia reportada');
+    showToast('Petición registrada correctamente');
     renderClientView();
     e.target.reset();
 });
