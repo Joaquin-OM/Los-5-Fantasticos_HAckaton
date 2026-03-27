@@ -1,6 +1,6 @@
-﻿// DOM Elements
+// DOM Elements
 const views = document.querySelectorAll('.view');
-const btnLogout = document.getElementById('logout-btn');
+
 const loginForm = document.getElementById('login-form');
 
 // INIT
@@ -38,7 +38,7 @@ const performLogout = () => {
     switchView('login-section');
 };
 
-if (btnLogout) btnLogout.addEventListener('click', performLogout);
+
 
 const btnLogoutHeader = document.getElementById('logout-btn-header');
 if (btnLogoutHeader) btnLogoutHeader.addEventListener('click', performLogout);
