@@ -1,4 +1,4 @@
-﻿function renderClientView() {
+function renderClientView() {
     const myShipments = appState.shipments.filter(s => s.hotel === currentUser.hotel);
     const activeShipment = myShipments.find(s => s.status !== 'entregado') || myShipments[0]; 
     
@@ -7,11 +7,15 @@
     const detContainer = document.getElementById('client-shipment-details');
     
     if (activeShipment && activeShipment.status !== 'entregado') { 
-        let pct = activeShipment.status === 'preparado' ? 0 : activeShipment.status === 'en_camino' ? 50 : 100;
+        let pct = 0;
+        if (activeShipment.status === 'en_camino') pct = 50;
+        else if (activeShipment.status === 'entregado') pct = 100;
+        // Si es 'pendiente' or 'preparado', pct se queda en 0 para marcar el primer paso.
         
         pbContainer.innerHTML = `
-            <div class="status-line-bg"></div>
-            <div class="status-line-fill" style="width: ${pct}%"></div>
+            <div class="status-line-bg">
+                <div class="status-line-fill" style="width: ${pct}%"></div>
+            </div>
             <div class="status-step ${pct >= 0 ? 'completed' : ''} ${pct === 0 ? 'active' : ''}">
                 <div class="step-icon">1</div>
                 <p>Preparado</p>

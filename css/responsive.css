@@ -1,4 +1,4 @@
-﻿@media (max-width: 1024px) {
+@media (max-width: 1024px) {
     .grid-layout { grid-template-columns: 1fr; }
     .col-span-2, .col-span-3 { grid-column: span 1; }
     .sidebar { width: 60px; }
@@ -44,4 +44,10 @@
     
     .albaran-grid { grid-template-columns: 1fr !important; gap: 1rem !important; }
     #signature-pad { width: 100% !important; height: 150px; }
+
+    /* Fix progress bar on mobile */
+    .status-step { width: 50px; }
+    .status-step p { font-size: 0.65rem; }
+    .step-icon { width: 30px; height: 30px; font-size: 0.8rem; }
+    .status-line-bg { left: 25px; right: 25px; top: 15px; }
 }

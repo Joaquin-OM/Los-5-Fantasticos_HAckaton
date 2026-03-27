@@ -1,7 +1,7 @@
-﻿// Base simulada estática
+// Base simulada estática
 const defaultState = {
     shipments: [
-        { id: '#ENV-401', hotel: 'Hotel Ritz', driver: 'Carlos R.', status: 'preparado', time: '14:00 - 16:00', dirtyCarts: null, type: 'Limpios + Recogida', signature: null },
+        { id: '#ENV-401', hotel: 'Hotel Ritz', driver: 'Carlos R.', status: 'en_camino', time: '14:00 - 16:00', dirtyCarts: null, type: 'Limpios + Recogida', signature: null },
         { id: '#ENV-402', hotel: 'Hotel Hilton', driver: 'Ana G.', status: 'entregado', time: '08:00 - 10:00', dirtyCarts: 4, type: 'Solo Entrega', signature: null },
         { id: '#ENV-403', hotel: 'Four Seasons', driver: 'Carlos R.', status: 'en_camino', time: '16:00 - 18:00', dirtyCarts: null, type: 'Recogida Ropa Sucia', signature: null },
         { id: '#ENV-404', hotel: 'Marriott', driver: 'Ana G.', status: 'preparado', time: 'Mañana', dirtyCarts: null, type: 'Limpios + Recogida', signature: null },
@@ -41,6 +41,13 @@ if(!appState.jaulas || (appState.jaulas.enviadas.length === 0 && appState.jaulas
 const saveState = () => {
     localStorage.setItem('polarier_data', JSON.stringify(appState));
 };
+
+// Forzado demo: Asegurar que el pedido del Ritz esté en reparto para la demo
+const ritzShipment = appState.shipments.find(s => s.id === '#ENV-401');
+if (ritzShipment && ritzShipment.status === 'preparado') {
+    ritzShipment.status = 'en_camino';
+    saveState();
+}
 
 // Mapeos UI
 const statusMap = {
